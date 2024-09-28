@@ -1,0 +1,3 @@
+entry: {src/grace}
+executable: {src/cli}
+requires: [> 0.9.83]
