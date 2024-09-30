@@ -1,19 +1,14 @@
 
+
+
+
 serve.verbose.chrome [
 
     GET "/" [
-        
+        send.html read ./"ui/main.html"
     ]
     
     GET "/(?<pth>.+)" $[pth][
-        ; print ["asked for:" pth]
-        ; print ["->" ./"3rdparty/monaco/" ++ pth]
-        ; req: pth
-        ; if contains? pth "#" ->
-        ;     req: first split.by:"#" pth
-        ; src: read ./ req
-
-        ; (suffix? req "js")? [ print "SENDING JS" send.js src]
-        ;                     -> send src
+        send read ./ pth
     ]
 ]
