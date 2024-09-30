@@ -17,6 +17,7 @@
 ;     ]
 ; ]
 
+import 'mimetypes!
 
 serve.verbose.chrome [
 
