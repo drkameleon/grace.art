@@ -1,2 +1,3 @@
 # grace
-A minimalistic code editor, based on Monaco &amp; written in Arturo
+
+A minimalistic code editor, inspired by Monaco/VSCode, based on Ace &amp; written in Arturo
