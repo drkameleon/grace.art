@@ -25,6 +25,7 @@ serve.verbose.chrome [
     ]
     
     GET "/(?<pth>.+)" $[pth][
-        send.js read ./ pth
+        emit.as: extract.extension pth 
+            read ./ pth
     ]
 ]
