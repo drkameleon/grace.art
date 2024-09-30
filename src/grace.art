@@ -9,6 +9,6 @@ serve.verbose.chrome [
     ]
     
     GET "/(?<pth>.+)" $[pth][
-        send read ./ pth
+        send.js read ./ pth
     ]
 ]
