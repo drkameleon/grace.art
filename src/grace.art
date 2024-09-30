@@ -24,8 +24,8 @@ serve.verbose.chrome [
         send.html read ./"ui/main.html"
     ]
     
-    GET "/(?<pth>.+)" $[pth][
-        emit.as: extract.extension pth 
-            read ./ pth
+    GET "/(?<location>.+)" $[location][
+        emit.as: extract.extension location
+            read ./ location
     ]
 ]
