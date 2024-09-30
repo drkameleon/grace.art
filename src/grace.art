@@ -25,7 +25,7 @@ serve.verbose.chrome [
     ]
     
     GET "/(?<location>.+)" $[location][
-        emit.as: extract.extension location
+        emit.as: mimetype extract.extension location
             read ./ location
     ]
 ]
