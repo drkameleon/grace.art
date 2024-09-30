@@ -2,5 +2,5 @@ entry: {src/grace}
 executable: {src/cli}
 requires: [> 0.9.83]
 depends: [
-    [mimetypes >= 0.0.3]
+    [mimetypes >= 0.0.4]
 ]
