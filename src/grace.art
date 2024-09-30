@@ -1,5 +1,21 @@
 
+; uiapp: function [body][
+;     write "web_server" {
+;         serve.port:18966 
+;     } ++ as.code body
 
+;     pid: execute.async.args:["web_server"] sys\binary
+;     webview {http://localhost:18966}
+;     terminate pid
+; ]
+
+; ;-----------------------------
+
+; uiapp [
+;     GET "/" [
+;         send.html "<h1>Boom</h1>"
+;     ]
+; ]
 
 
 serve.verbose.chrome [
