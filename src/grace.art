@@ -22,11 +22,11 @@ import 'mimetypes!
 serve.verbose.chrome [
 
     GET "/" [
-        send.html read ./"ui/main.html"
+        emit.html read ./"ui/main.html"
     ]
     
     GET "/(?<location>.+)" $[location][
-        emit.as: mimetype extract.extension location
+        emit.as: mimetype.best location
             read ./ location
     ]
 ]
