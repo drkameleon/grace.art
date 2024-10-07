@@ -1,25 +1,18 @@
 
-; uiapp: function [body][
-;     write "web_server" {
-;         serve.port:18966 
-;     } ++ as.code body
+uiapp: function [body][
+    ws: ./ "web_server"
+    write ws {
+        import 'mimetypes!
+        serve.port:18966
+    } ++ as.code body
 
-;     pid: execute.async.args:["web_server"] sys\binary
-;     webview {http://localhost:18966}
-;     terminate pid
-; ]
+    pid: execute.async.args:@[ws] sys\binary
+    webview.title: "Grace — Untitled.js" {http://localhost:18966}
+    terminate pid
+    delete ws
+]
 
-; ;-----------------------------
-
-; uiapp [
-;     GET "/" [
-;         send.html "<h1>Boom</h1>"
-;     ]
-; ]
-
-import 'mimetypes!
-
-serve.verbose.chrome [
+uiapp [
 
     GET "/" [
         emit.html read ./"ui/main.html"
