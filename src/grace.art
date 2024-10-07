@@ -26,9 +26,6 @@ serve.verbose.chrome [
     ]
     
     GET "/(?<location>.+)" $[location][
-        print ["asked for:" location]
-        print ["exists?:" exists? ./ location]
-        print ["mime:" mimetype.best location]
         emit.as: mimetype.best location
             read ./ location
     ]
