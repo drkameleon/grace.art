@@ -1,0 +1,53 @@
+##############################################
+# App information
+##############################################
+env:
+    app-name: grace
+    app-entry: src/cli.art
+    app-notes: auto
+##############################################
+ 
+# > if there is no serious reason, better not
+#   change anything below this line! ;-)
+
+name: Release Arturo app
+
+on:
+    push:
+      tags:
+        - 'v*.*.*'
+
+concurrency: 
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    Bundle:
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                os:
+                    - ubuntu-latest       # Linux - amd64
+                    - macos-13            # macOS - amd64
+                    - macos-latest        # macOS - arm64/M1
+                    - windows-latest      # Windows - amd64
+        steps:
+            - uses: actions/checkout@v4
+            - uses: arturo-lang/bundler@main
+              with: 
+                token: ${{ secrets.GITHUB_TOKEN }}
+                entry: ${{ env.app-entry }}
+                target: ${{ env.app-name}}
+                release: 'true'
+
+    Release:
+        runs-on: ubuntu-latest
+        if: ${{ always() }}
+        needs: Bundle
+        steps:
+            - uses: actions/checkout@v4
+            - uses: arturo-lang/bundler-releases@main
+              with:
+                token: ${{ secrets.GITHUB_TOKEN }}
+                name: ${{ env.app-name }}
+                description: ${{ env.app-notes }}
