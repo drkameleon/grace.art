@@ -8,7 +8,7 @@
   <!--<img src="https://img.shields.io/github/actions/workflow/status/arturo-lang/grafito/test.yml?branch=main&style=for-the-badge">-->
 </p>
 
-<!--<p align="center"><img width="90%" align="center" src="https://raw.githubusercontent.com/arturo-lang/grafito/master/ui-screenshot.png"/></p>
+<p align="center"><img width="90%" align="center" src="https://raw.githubusercontent.com/drkameleon/grace.art/main/screenshot.png"/></p>
 
 --- 
  
