@@ -1,2 +1,14 @@
+;===============================================
+; Grace.art
+;
+; A minimalistic code editor
+; written in Arturo
+;
+; MIT License
+; (c) 2024 Yanis Zafirópulos
+;-----------------------------------------------
+; @file src/cli.art
+;===============================================
+
 import ./{grace}
 

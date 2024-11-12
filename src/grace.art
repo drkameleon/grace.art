@@ -1,3 +1,14 @@
+;===============================================
+; Grace.art
+;
+; A minimalistic code editor
+; written in Arturo
+;
+; MIT License
+; (c) 2024 Yanis Zafirópulos
+;-----------------------------------------------
+; @file src/grace.art
+;===============================================
 
 export module [
     uiapp: function [body][
