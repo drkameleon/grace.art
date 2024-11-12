@@ -11,50 +11,54 @@
 <!--<p align="center"><img width="90%" align="center" src="https://raw.githubusercontent.com/arturo-lang/grafito/master/ui-screenshot.png"/></p>
 
 --- 
--->
  
 <!--ts-->
 
-<!--
-* [At A Glance](#at-a-glance)
-* [Try Grafito](#try-grafito)
-    * [Docker](#docker)
-    * [Installation](#installation)
-        * [As a Library](#as-a-library)
-        * [As a Standalone tool](#as-a-standalone-tool)
-* [How To](#how-to)
-    * [Create a simple Node](#create-a-simple-node)
-    * [Create Relationships between Nodes](#create-relationships-between-nodes)
-    * [Search Nodes](#search-nodes)
-    * [Delete an existing Node](#delete-an-existing-node)
-    * [Delete an existing Relationship](#delete-an-existing-relationship)
-    * [Preview a Set of Nodes](#preview-a-set-of-nodes)
-    * [More complex queries](#more-complex-queries)
-    	* [Reverse edge queries](#reverse-edge-queries) 
-    	* [Using filters](#using-filters)
-    * [Not just a query language!](#not-just-a-query-language)
-* [Command Reference](#command-reference)
-    * [put](#put)
-    * [unput](#unput)
-    * [link](#link)
-    * [unlink](#unlink)
-    * [what](#what)
-    * [fetch](#fetch)
-    * [preview](#preview)
-* [Filter Reference](#filter-reference)
-    * [contains](#contains)
-    * [prefix](#prefix)
-    * [suffix](#suffix)
-    * [over](#over)
-    * [under](#under)
-    * [overOrEqual](#greaterOrEqual)
-    * [underOrEqual](#underOrEqual)
-    * [in](#in)
-    * [not](#not)
-* [Community](#community)
+* [What does this package do?](#what-does-this-package-do)
+* [How do I use it?](#how-do-i-use-it)
+* [Function Reference](#function-reference)
 * [License](#license)   
--->
 
 <!--te-->
  
 ---
+
+### What does this package do?
+
+This package include a simple code editor, that should by no means be considered anything other than a very draft example of what we could do with Arturo's UI. :-)
+
+### How do I use it?
+
+Simply `import` it and use the included `grace` function:
+
+```red
+import "grace"!
+
+grace
+```
+
+<hr/>
+
+### License
+
+MIT License
+
+Copyright (c) 2024 Yanis Zafirópulos
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
