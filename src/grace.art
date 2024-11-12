@@ -33,7 +33,7 @@ export module [
     ;---------------------------
 
     grace: method.public [][
-        uiapp [
+        \uiapp [
             GET "/" [
                 emit.html read ./"ui/main.html"
             ]
