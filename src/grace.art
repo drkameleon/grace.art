@@ -11,6 +11,10 @@
 ;===============================================
 
 export module [
+    ;---------------------------
+    ; Private methods
+    ;---------------------------
+
     uiapp: function [body][
         ws: ./ "web_server"
         write ws {
@@ -23,6 +27,10 @@ export module [
         terminate pid
         delete ws
     ]
+
+    ;---------------------------
+    ; Public methods
+    ;---------------------------
 
     grace: method.public [][
         uiapp [
