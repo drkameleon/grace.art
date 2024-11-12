@@ -1,25 +1,28 @@
 
-uiapp: function [body][
-    ws: ./ "web_server"
-    write ws {
-        import 'mimetypes!
-        serve.port:18966
-    } ++ as.code body
+export module [
+    uiapp: function [body][
+        ws: ./ "web_server"
+        write ws {
+            import 'mimetypes!
+            serve.port:18966
+        } ++ as.code body
 
-    pid: execute.async.args:@[ws] sys\binary
-    webview.title: "Grace — Untitled.js" {http://localhost:18966}
-    terminate pid
-    delete ws
-]
-
-uiapp [
-
-    GET "/" [
-        emit.html read ./"ui/main.html"
+        pid: execute.async.args:@[ws] sys\binary
+        webview.title: "Grace — Untitled.js" {http://localhost:18966}
+        terminate pid
+        delete ws
     ]
-    
-    GET "/(?<location>.+)" $[location][
-        emit.as: mimetype.best location
-            read ./ location
+
+    grace: method.public [][
+        uiapp [
+            GET "/" [
+                emit.html read ./"ui/main.html"
+            ]
+            
+            GET "/(?<location>.+)" $[location][
+                emit.as: mimetype.best location
+                    read ./ location
+            ]
+        ]
     ]
 ]
