@@ -10,5 +10,7 @@
 ; @file src/cli.art
 ;===============================================
 
-import ./{grace}
+import ./{grace}!
+
+grace
 
