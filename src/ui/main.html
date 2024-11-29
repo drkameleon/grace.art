@@ -23,7 +23,7 @@
                 justify-content: space-between;
                 align-items: center;
             }
-            .position-info, .select select {
+            .position-info {
                 font-family: monospace;
                 color: #666;
             }
@@ -85,7 +85,7 @@
                         <option value="3spaces">3</option>
                         <option value="4spaces" selected>4</option>
                         <option value="8spaces">8</option>
-                        <option disabled>──────────</option>
+                        <option disabled>───</option>
                         <option disabled>Using...</option>
                         <option value="spaces">Spaces</option>
                         <option value="tabs">Tabs</option>
@@ -93,6 +93,7 @@
                 </div>
                 <div class="select is-small">
                     <select id="syntaxSelect">
+                        <option disabled>Syntax</option>
                         <option value="javascript" selected>JavaScript</option>
                         <option value="abap">ABAP</option>
                         <option value="abc">ABC</option>
