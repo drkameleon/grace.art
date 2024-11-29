@@ -7,184 +7,181 @@
     <link rel="stylesheet" href="lib/bulma/bulma.min.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        * {
-                user-select: none;
-                -webkit-user-select: none;
-            }
-            #editor { 
-                position: absolute;
-                top: 0;
-                right: 0;
-                bottom: 40px;
-                left: 0;
-                user-select: text;
-                -webkit-user-select: text;
-            }
-            #statusbar {
-                position: absolute;
-                bottom: 0;
-                width: 100%;
-                height: 40px;
-                background-color: #f5f5f5;
-                border-top: 1px solid #ddd;
-                display: flex;
-                justify-content: space-between;
-                align-items: stretch;
-            }
-            .select, .position-info {
-                font-size: 0.875rem;
-            }
-            .position-info {
-                color: #666;
-                display: flex;
-                align-items: center;
-            }
-            .settings-button {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 40px;
-                margin-right: 15px;
-                border-right: 1px solid #ddd;
-                height: 100%;
-            }
-            .settings-button:hover {
-                background-color: rgba(0,0,0,0.05);
-            }
-            .settings-button svg {
-                width: 16px;
-                height: 16px;
-                color: #666;
-            }
-            .controls {
-                display: flex;
-                height: 100%;
-            }
-            .select-wrapper {
-                position: relative;
-                height: 100%;
-                border-left: 1px solid #ddd;
-                display: flex;
-                align-items: center;
-                padding: 0 15px;
-            }
-            .select-wrapper::after {
-                content: "";
-                position: absolute;
-                right: 8px;
-                top: 50%;
-                transform: translateY(-50%);
-                width: 0;
-                height: 0;
-                border-left: 4px solid transparent;
-                border-right: 4px solid transparent;
-                border-top: 4px solid #666;
-                pointer-events: none;
-            }
-            .select-wrapper select {
-                border: none;
-                background: none;
-                padding-right: 1.5em;
-                cursor: pointer;
-                font-size: 0.875rem;
-                color: #666;
-                -webkit-appearance: none;
-                appearance: none;
-            }
-            .select-wrapper select:focus {
-                outline: none;
-            }
-            .modal {
-                display: none;
-                position: fixed;
-                z-index: 1000;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0,0,0,0.4);
-            }
-            .modal {
-                display: none;
-            }
-            .modal-card {
-                width: 400px;
-                margin: 0 auto;
-                margin-top: 10%;
-            }
-            .font-size-control {
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                width: 200px;
-            }
-            .font-size-control input[type="range"] {
-                flex: 1;
-                height: 6px;
-                -webkit-appearance: none;
-                background: #ddd;
-                border-radius: 3px;
-            }
-            .font-size-control input[type="range"]::-webkit-slider-thumb {
-                -webkit-appearance: none;
-                width: 16px;
-                height: 16px;
-                border-radius: 50%;
-                background: #4a9eff;
-                cursor: pointer;
-                border: none;
-            }
-            .font-size-control input[type="range"]:focus {
-                outline: none;
-            }
-            #fontSizeValue {
-                font-size: 0.9em;
-                color: #666;
-                min-width: 45px;
-            }
-            .modal-card-body {
-                padding: 20px;
-            }
-            .setting-row {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 15px;
-            }
-            .setting-row:last-child {
-                margin-bottom: 0;
-            }
-            .setting-row label {
-                color: #666;
-                font-size: 0.9em;
-            }
-            .setting-row select {
-                width: 200px;
-                padding: 6px 12px;
-                border: 1px solid #ddd;
-                border-radius: 4px;
-                background-color: #fff;
-                font-size: 0.9em;
-                color: #333;
-            }
-            .setting-row select:focus {
-                outline: none;
-                border-color: #4a9eff;
-            }
-            .font-size-control {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                width: 200px;
-            }
-            .font-size-control input[type="range"] {
-                flex: 1;
-            }
-            #fontSizeValue {
-                font-size: 0.9em;
-                color: #666;
-                min-width: 45px;
-            }
+        * { user-select: none; -webkit-user-select: none; }
+        #editor { 
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 40px;
+            left: 0;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+        #statusbar {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 40px;
+            background-color: #f5f5f5;
+            border-top: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+        }
+        .modal-background {
+            background-color: rgba(0, 0, 0, 0.2) !important;
+        }
+        /* Rest of the styles remain the same */
+        .select, .position-info { font-size: 0.875rem; }
+        .position-info {
+            color: #666;
+            display: flex;
+            align-items: center;
+        }
+        .settings-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            border-right: 1px solid #ddd;
+            height: 100%;
+            transition: width 0.2s;
+        }
+        .settings-button:hover { background-color: rgba(0,0,0,0.05); }
+        .settings-button svg {
+            width: 16px;
+            height: 16px;
+            color: #666;
+        }
+        .controls {
+            display: flex;
+            height: 100%;
+        }
+        .select-wrapper {
+            position: relative;
+            height: 100%;
+            border-left: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+        }
+        .select-wrapper::after {
+            content: "";
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 4px solid #666;
+            pointer-events: none;
+        }
+        .select-wrapper select {
+            border: none;
+            background: none;
+            padding-right: 1.5em;
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: #666;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .select-wrapper select:focus {
+            outline: none;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal {
+            display: none;
+        }
+        .modal-card {
+            width: 400px;
+            margin: 0 auto;
+            margin-top: 10%;
+        }
+        .font-size-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 200px;
+        }
+        .font-size-control input[type="range"] {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            background: #ddd;
+            border-radius: 3px;
+        }
+        .font-size-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #4a9eff;
+            cursor: pointer;
+            border: none;
+        }
+        .font-size-control input[type="range"]:focus {
+            outline: none;
+        }
+        #fontSizeValue {
+            font-size: 0.9em;
+            color: #666;
+            min-width: 45px;
+        }
+        .modal-card-body {
+            padding: 20px;
+        }
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .setting-row:last-child {
+            margin-bottom: 0;
+        }
+        .setting-row label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .setting-row select {
+            width: 200px;
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff;
+            font-size: 0.9em;
+            color: #333;
+        }
+        .setting-row select:focus {
+            outline: none;
+            border-color: #4a9eff;
+        }
+        .font-size-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 200px;
+        }
+        .font-size-control input[type="range"] {
+            flex: 1;
+        }
+        #fontSizeValue {
+            font-size: 0.9em;
+            color: #666;
+            min-width: 45px;
+        }
     </style>
 </head>
 <body>
@@ -261,6 +258,12 @@
                         </select>
                     </div>
                 </section>
+                <footer class="modal-card-foot">
+                    <div class="buttons">
+                        <button class="button">Cancel</button>
+                        <button class="button is-success">Save changes</button>
+                    </div>
+                </footer>
             </div>
         </div>
     </div>
@@ -283,17 +286,35 @@
 
                 const darkThemes = [
                     { value: 'ambiance', label: 'Ambiance' },
-                    { value: 'monokai', label: 'Monokai' },
+                    { value: 'chaos', label: 'Chaos' },
+                    { value: 'clouds_midnight', label: 'Clouds Midnight' },
                     { value: 'dracula', label: 'Dracula' },
-                    // Add other dark themes
+                    { value: 'cobalt', label: 'Cobalt' },
+                    { value: 'gruvbox', label: 'Gruvbox' },
+                    { value: 'idle_fingers', label: 'Idle Fingers' },
+                    { value: 'monokai', label: 'Monokai' },
+                    { value: 'nord_dark', label: 'Nord Dark' },
+                    { value: 'one_dark', label: 'One Dark' },
+                    { value: 'twilight', label: 'Twilight' }
                 ];
 
                 const lightThemes = [
                     { value: 'chrome', label: 'Chrome' },
-                    { value: 'github', label: 'GitHub Light' },
+                    { value: 'clouds', label: 'Clouds' },
+                    { value: 'crimson_editor', label: 'Crimson Editor' },
+                    { value: 'dawn', label: 'Dawn' },
                     { value: 'eclipse', label: 'Eclipse' },
-                    // Add other light themes
+                    { value: 'github', label: 'GitHub' },
+                    { value: 'xcode', label: 'Xcode' }
                 ];
+
+                function updateSettingsButtonWidth() {
+                    const gutter = document.querySelector('.ace_gutter');
+                    if (gutter) {
+                        const width = gutter.offsetWidth;
+                        document.querySelector('.settings-button').style.width = width + 'px';
+                    }
+                }
 
                 onMounted(async () => {
                     editor.value = ace.edit("editor");
@@ -301,6 +322,7 @@
                     editor.value.session.setMode("ace/mode/javascript");
                     editor.value.setFontSize(14);
 
+                    // Set up cursor position tracking
                     editor.value.selection.on('changeCursor', () => {
                         const pos = editor.value.getCursorPosition();
                         cursor.value = {
@@ -311,6 +333,13 @@
 
                     // Initialize Lucide icons
                     lucide.createIcons();
+
+                    // Set up gutter width sync
+                    setTimeout(updateSettingsButtonWidth, 100);
+                    editor.value.session.on('change', () => setTimeout(updateSettingsButtonWidth, 0));
+                    editor.value.session.on('changeScrollLeft', updateSettingsButtonWidth);
+                    editor.value.renderer.on('resize', updateSettingsButtonWidth);
+                    editor.value.session.on('changeScrollTop', updateSettingsButtonWidth);
 
                     // Populate available fonts
                     await document.fonts.ready;
@@ -341,6 +370,26 @@
                                 const indent = line.match(/^\s*/)[0];
                                 const indentLevel = Math.floor(indent.length / oldSize);
                                 const newIndent = ' '.repeat(indentLevel * newValue);
+                                editor.value.session.doc.removeInLine(i, 0, indent.length);
+                                editor.value.session.doc.insertInLine({row: i, column: 0}, newIndent);
+                            }
+                        });
+                    }
+                });
+
+                watch(indentType, (newValue) => {
+                    if (editor.value) {
+                        const useTabs = newValue === 'tabs';
+                        editor.value.session.setUseSoftTabs(!useTabs);
+                        
+                        const size = editor.value.session.getTabSize();
+                        const lines = editor.value.session.doc.getAllLines();
+                        
+                        lines.forEach((line, i) => {
+                            if (line.trim()) {
+                                const indent = line.match(/^\s*/)[0];
+                                const indentLevel = Math.floor(indent.length / size);
+                                const newIndent = useTabs ? '\t'.repeat(indentLevel) : ' '.repeat(indentLevel * size);
                                 editor.value.session.doc.removeInLine(i, 0, indent.length);
                                 editor.value.session.doc.insertInLine({row: i, column: 0}, newIndent);
                             }
