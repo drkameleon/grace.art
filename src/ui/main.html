@@ -80,15 +80,16 @@
             <div class="controls">
                 <div class="select is-small">
                     <select id="indentationSelect">
-                        <option disabled>Indent size</option>
-                        <option value="2spaces">2</option>
-                        <option value="3spaces">3</option>
-                        <option value="4spaces" selected>4</option>
-                        <option value="8spaces">8</option>
-                        <option disabled>───</option>
-                        <option disabled>Using...</option>
-                        <option value="spaces">Spaces</option>
-                        <option value="tabs">Tabs</option>
+                        <optgroup label="Indent size">
+                            <option value="2spaces">2</option>
+                            <option value="3spaces">3</option>
+                            <option value="4spaces" selected>4</option>
+                            <option value="8spaces">8</option>
+                        </optgroup>
+                        <optgroup label="Using...">
+                            <option value="spaces">Spaces</option>
+                            <option value="tabs">Tabs</option>
+                        </optgroup>
                     </select>
                 </div>
                 <div class="select is-small">
