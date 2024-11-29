@@ -42,7 +42,7 @@
             .settings-button {
                 display: flex;
                 align-items: center;
-                padding: 0 15px;
+                padding: 0 8px;
                 border-right: 1px solid #ddd;
                 cursor: pointer;
             }
@@ -71,6 +71,8 @@
                 cursor: pointer;
                 font-size: 0.875rem;
                 color: #666;
+                -webkit-appearance: none;
+                appearance: none;
             }
             .select-wrapper select:focus {
                 outline: none;
@@ -108,9 +110,15 @@
             .modal-close {
                 cursor: pointer;
                 color: #999;
+                display: flex;
+                align-items: center;
             }
             .modal-close:hover {
                 color: #666;
+            }
+            .modal-close svg {
+                width: 18px;
+                height: 18px;
             }
             .modal-body {
                 padding: 20px;
@@ -191,12 +199,7 @@
                 <div class="modal-body">
                     <div class="setting-row">
                         <label>Font Family</label>
-                        <select id="fontSelect">
-                            <option value="Monaco">Monaco</option>
-                            <option value="Menlo">Menlo</option>
-                            <option value="Consolas">Consolas</option>
-                            <option value="Source Code Pro">Source Code Pro</option>
-                        </select>
+                        <select id="fontSelect"></select>
                     </div>
                     <div class="setting-row">
                         <label>Theme</label>
@@ -251,6 +254,37 @@
             document.getElementById('themeSelect').addEventListener('change', function(e) {
                 editor.setTheme("ace/theme/" + e.target.value);
             });
+
+            // Populate available monospace fonts
+            async function populateMonospaceFonts() {
+                const fonts = await document.fonts.ready;
+                const fontSelect = document.getElementById('fontSelect');
+                
+                const testString = 'ili1WM';
+                const testSize = '72px';
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+
+                const availableFonts = [
+                    'Consolas', 'Monaco', 'Menlo', 'Source Code Pro', 'Fira Code', 
+                    'JetBrains Mono', 'Cascadia Code', 'IBM Plex Mono', 'Ubuntu Mono'
+                ].filter(font => {
+                    context.font = `${testSize} ${font}`;
+                    const width1 = context.measureText(testString).width;
+                    context.font = `${testSize} monospace`;
+                    const width2 = context.measureText(testString).width;
+                    return width1 === width2;
+                });
+
+                availableFonts.forEach(font => {
+                    const option = document.createElement('option');
+                    option.value = font;
+                    option.textContent = font;
+                    fontSelect.appendChild(option);
+                });
+            }
+
+            populateMonospaceFonts();
 
             // Handle font changes
             document.getElementById('fontSelect').addEventListener('change', function(e) {
