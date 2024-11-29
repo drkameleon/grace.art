@@ -23,9 +23,24 @@
                 justify-content: space-between;
                 align-items: center;
             }
-            .position-info {
+            .position-info, .select select {
                 font-family: monospace;
                 color: #666;
+            }
+            .select select:disabled {
+                color: #999;
+                font-weight: bold;
+                padding-top: 10px;
+            }
+            .select select option:disabled {
+                font-weight: bold;
+                color: #999;
+                background-color: #f5f5f5;
+            }
+            hr.dropdown-divider {
+                border: none;
+                border-top: 1px solid #ddd;
+                margin: 5px 0;
             }
             .controls {
                 display: flex;
@@ -65,11 +80,15 @@
             <div class="controls">
                 <div class="select is-small">
                     <select id="indentationSelect">
-                        <option value="2spaces">2 Spaces</option>
-                        <option value="3spaces">3 Spaces</option>
-                        <option value="4spaces" selected>4 Spaces</option>
-                        <option value="8spaces">8 Spaces</option>
-                        <option value="tab">Tab</option>
+                        <option disabled>Indent size</option>
+                        <option value="2spaces">2</option>
+                        <option value="3spaces">3</option>
+                        <option value="4spaces" selected>4</option>
+                        <option value="8spaces">8</option>
+                        <option disabled>──────────</option>
+                        <option disabled>Using...</option>
+                        <option value="spaces">Spaces</option>
+                        <option value="tabs">Tabs</option>
                     </select>
                 </div>
                 <div class="select is-small">
@@ -99,8 +118,8 @@
             // Handle indentation changes
             document.getElementById('indentationSelect').addEventListener('change', function(e) {
                 var value = e.target.value;
-                var size = value === 'tab' ? 8 : parseInt(value);
-                var useSoftTabs = value !== 'tab';
+                var size = parseInt(value) || 4;
+                var useSoftTabs = value === 'spaces';
                 
                 editor.session.setUseSoftTabs(useSoftTabs);
                 editor.session.setTabSize(size);
