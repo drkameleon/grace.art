@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.24.1/ace.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
-    <link rel="stylesheet" href="lib/bulma/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         * { user-select: none; -webkit-user-select: none; }
@@ -31,12 +31,18 @@
         .modal-background {
             background-color: rgba(0, 0, 0, 0.2) !important;
         }
-        /* Rest of the styles remain the same */
         .select, .position-info { font-size: 0.875rem; }
         .position-info {
             color: #666;
             display: flex;
             align-items: center;
+        }
+        .position-info span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px; /* Adjust as needed */
+            display: inline-block;
         }
         .settings-button {
             display: flex;
@@ -46,6 +52,7 @@
             border-right: 1px solid #ddd;
             height: 100%;
             transition: width 0.2s;
+            cursor: pointer;
         }
         .settings-button:hover { background-color: rgba(0,0,0,0.05); }
         .settings-button svg {
@@ -91,28 +98,38 @@
         .select-wrapper select:focus {
             outline: none;
         }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.4);
-        }
-        .modal {
-            display: none;
-        }
         .modal-card {
             width: 400px;
             margin: 0 auto;
-            margin-top: 10%;
+            margin-top: 10px !important;
+        }
+        .modal-card-head {
+            padding: 10px 15px;
+        }
+        .modal-card-body {
+            padding: 20px 25px;
+        }
+        .modal-card-foot {
+            padding: 10px 15px;
+            justify-content: flex-end;
+            background: transparent;
+            border-top: 1px solid #eee;
+        }
+        .modal-card-foot .button {
+            background: transparent;
+            border: none;
+            color: #666;
+        }
+        .modal-card-foot .button:hover {
+            background: rgba(0,0,0,0.05);
+        }
+        .modal-card-title {
+            font-size: 1rem;
         }
         .font-size-control {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
             width: 200px;
         }
         .font-size-control input[type="range"] {
@@ -130,17 +147,6 @@
             background: #4a9eff;
             cursor: pointer;
             border: none;
-        }
-        .font-size-control input[type="range"]:focus {
-            outline: none;
-        }
-        #fontSizeValue {
-            font-size: 0.9em;
-            color: #666;
-            min-width: 45px;
-        }
-        .modal-card-body {
-            padding: 20px;
         }
         .setting-row {
             display: flex;
@@ -164,32 +170,25 @@
             font-size: 0.9em;
             color: #333;
         }
-        .setting-row select:focus {
-            outline: none;
-            border-color: #4a9eff;
+        .button.is-small {
+            height: 2em;
+            padding-left: 1em;
+            padding-right: 1em;
         }
-        .font-size-control {
+        .word-wrap-toggle {
             display: flex;
             align-items: center;
-            gap: 10px;
-            width: 200px;
         }
-        .font-size-control input[type="range"] {
-            flex: 1;
-        }
-        #fontSizeValue {
-            font-size: 0.9em;
-            color: #666;
-            min-width: 45px;
+        .word-wrap-toggle input[type="checkbox"] {
+            margin-right: 8px;
         }
     </style>
 </head>
 <body>
     <div id="app">
-        <div id="editor">function helloGrace() {
-    var x = "This is a very silly example";
-    console.log("but still works...");
-    return x;
+        <div id="editor">function helloWorld() {
+    console.log("Hello, World!");
+    return "Hello!";
 }</div>
         <div id="statusbar">
             <div class="position-info">
@@ -220,13 +219,13 @@
                 </div>
             </div>
         </div>
-
+     
         <div class="modal" :class="{'is-active': isSettingsModalOpen}">
             <div class="modal-background" @click="closeSettingsModal"></div>
             <div class="modal-card">
                 <header class="modal-card-head">
                     <p class="modal-card-title">Settings</p>
-                    <button class="delete" @click="closeSettingsModal"></button>
+                    <button class="delete is-small" @click="closeSettingsModal"></button>
                 </header>
                 <section class="modal-card-body">
                     <div class="setting-row">
@@ -257,13 +256,26 @@
                             </optgroup>
                         </select>
                     </div>
-                </section>
-                <footer class="modal-card-foot">
-                    <div class="buttons">
-                        <button class="button">Cancel</button>
-                        <button class="button is-success">Save changes</button>
+                    <div class="setting-row">
+                        <label>Word Wrap</label>
+                        <div class="word-wrap-toggle">
+                            <input type="checkbox" v-model="wordWrap">
+                            <span>Enable word wrapping</span>
+                        </div>
                     </div>
+                </section>
+                <footer class="modal-card-foot" style="background: white; border-top: 1px solid #eee">
+                    <button class="button is-small" @click="restoreDefaults">
+                        <i data-lucide="rotate-ccw" class="icon is-small mr-1"></i>
+                        Restore Defaults
+                    </button>
                 </footer>
+                <!-- <footer class="modal-card-foot" style="justify-content: center; background: white; border-top: 1px solid #eee">
+                    <button class="button is-small is-light" @click="restoreDefaults" style="color: #666">
+                        <i data-lucide="rotate-ccw" class="icon is-small mr-1"></i>
+                        Restore Defaults
+                    </button>
+                </footer> -->
             </div>
         </div>
     </div>
@@ -283,6 +295,14 @@
                 const fontSize = ref(14);
                 const selectedFont = ref('Monaco');
                 const availableFonts = ref([]);
+                const wordWrap = ref(false);
+
+                const defaultSettings = {
+                    theme: 'monokai',
+                    fontSize: 14,
+                    selectedFont: 'Monaco',
+                    wordWrap: false
+                };
 
                 const darkThemes = [
                     { value: 'ambiance', label: 'Ambiance' },
@@ -308,12 +328,51 @@
                     { value: 'xcode', label: 'Xcode' }
                 ];
 
+                async function detectMonospaceFonts() {
+                    // Only the fonts from your Font Book listing
+                    const allFonts = [
+                        'Andale Mono', 'Courier New', 'Inconsolata', 'Menlo', 'Monaco', 
+                        'Osaka Mono', 'PT Mono', 'SF Mono', 'Spot Mono', 'Lantinghei',
+                        'PCMyongjo', 'DejaVu Sans Mono', 'Liberation Mono', 'Lucida Console',
+                        'Fira Code', 'JetBrains Mono', 'Source Code Pro', 'Ubuntu Mono',
+                        'Consolas', 'Roboto Mono', 'IBM Plex Mono', 'Anonymous Pro'
+                    ];
+                    
+                    const fonts = await Promise.all(
+                        allFonts.map(async font => {
+                            try {
+                                const fontFace = new FontFace(font, `local("${font}")`);
+                                await fontFace.load();
+                                return font;
+                            } catch {
+                                return null;
+                            }
+                        })
+                    );
+                    
+                    return fonts.filter(font => font !== null);
+                }
+
                 function updateSettingsButtonWidth() {
                     const gutter = document.querySelector('.ace_gutter');
                     if (gutter) {
-                        const width = gutter.offsetWidth;
-                        document.querySelector('.settings-button').style.width = width + 'px';
+                        document.querySelector('.settings-button').style.width = gutter.offsetWidth + 'px';
                     }
+                }
+
+                function openSettingsModal() {
+                    isSettingsModalOpen.value = true;
+                }
+
+                function closeSettingsModal() {
+                    isSettingsModalOpen.value = false;
+                }
+
+                function restoreDefaults() {
+                    theme.value = defaultSettings.theme;
+                    fontSize.value = defaultSettings.fontSize;
+                    selectedFont.value = defaultSettings.selectedFont;
+                    wordWrap.value = defaultSettings.wordWrap;
                 }
 
                 onMounted(async () => {
@@ -322,7 +381,6 @@
                     editor.value.session.setMode("ace/mode/javascript");
                     editor.value.setFontSize(14);
 
-                    // Set up cursor position tracking
                     editor.value.selection.on('changeCursor', () => {
                         const pos = editor.value.getCursorPosition();
                         cursor.value = {
@@ -331,81 +389,38 @@
                         };
                     });
 
-                    // Initialize Lucide icons
                     lucide.createIcons();
 
-                    // Set up gutter width sync
                     setTimeout(updateSettingsButtonWidth, 100);
                     editor.value.session.on('change', () => setTimeout(updateSettingsButtonWidth, 0));
                     editor.value.session.on('changeScrollLeft', updateSettingsButtonWidth);
                     editor.value.renderer.on('resize', updateSettingsButtonWidth);
                     editor.value.session.on('changeScrollTop', updateSettingsButtonWidth);
 
-                    // Populate available fonts
-                    await document.fonts.ready;
-                    const testFonts = [
-                        'Consolas', 'Monaco', 'Menlo', 'Source Code Pro', 'Fira Code',
-                        'JetBrains Mono', 'Ubuntu Mono', 'Courier New'
-                    ];
-                    availableFonts.value = testFonts.filter(font => document.fonts.check(`12px "${font}"`));
-                });
-
-                // Watchers for settings changes
-                watch(syntax, (newValue) => {
-                    editor.value?.session.setMode(`ace/mode/${newValue}`);
-                });
-
-                watch(theme, (newValue) => {
-                    editor.value?.setTheme(`ace/theme/${newValue}`);
-                });
-
-                watch(indentSize, (newValue) => {
-                    if (editor.value) {
-                        const oldSize = editor.value.session.getTabSize();
-                        editor.value.session.setTabSize(newValue);
-                        
-                        const lines = editor.value.session.doc.getAllLines();
-                        lines.forEach((line, i) => {
-                            if (line.trim()) {
-                                const indent = line.match(/^\s*/)[0];
-                                const indentLevel = Math.floor(indent.length / oldSize);
-                                const newIndent = ' '.repeat(indentLevel * newValue);
-                                editor.value.session.doc.removeInLine(i, 0, indent.length);
-                                editor.value.session.doc.insertInLine({row: i, column: 0}, newIndent);
-                            }
-                        });
+                    try {
+                        availableFonts.value = await detectMonospaceFonts();
+                        if (availableFonts.value.length === 0) {
+                            availableFonts.value = ['monospace'];
+                        }
+                    } catch (e) {
+                        console.error('Error detecting fonts:', e);
+                        availableFonts.value = ['monospace'];
                     }
                 });
 
-                watch(indentType, (newValue) => {
-                    if (editor.value) {
-                        const useTabs = newValue === 'tabs';
-                        editor.value.session.setUseSoftTabs(!useTabs);
-                        
-                        const size = editor.value.session.getTabSize();
-                        const lines = editor.value.session.doc.getAllLines();
-                        
-                        lines.forEach((line, i) => {
-                            if (line.trim()) {
-                                const indent = line.match(/^\s*/)[0];
-                                const indentLevel = Math.floor(indent.length / size);
-                                const newIndent = useTabs ? '\t'.repeat(indentLevel) : ' '.repeat(indentLevel * size);
-                                editor.value.session.doc.removeInLine(i, 0, indent.length);
-                                editor.value.session.doc.insertInLine({row: i, column: 0}, newIndent);
-                            }
-                        });
+                watch([syntax, theme, indentSize, indentType, fontSize, selectedFont, wordWrap], 
+                    ([newSyntax, newTheme, newIndentSize, newIndentType, newFontSize, newFont, newWordWrap]) => {
+                        if (editor.value) {
+                            editor.value.session.setMode(`ace/mode/${newSyntax}`);
+                            editor.value.setTheme(`ace/theme/${newTheme}`);
+                            editor.value.session.setTabSize(newIndentSize);
+                            editor.value.session.setUseSoftTabs(newIndentType === 'spaces');
+                            editor.value.setFontSize(parseInt(newFontSize));
+                            editor.value.container.style.fontFamily = newFont;
+                            editor.value.session.setUseWrapMode(newWordWrap);
+                        }
                     }
-                });
-
-                watch(fontSize, (newValue) => {
-                    editor.value?.setFontSize(parseInt(newValue));
-                });
-
-                watch(selectedFont, (newValue) => {
-                    if (editor.value) {
-                        editor.value.container.style.fontFamily = newValue;
-                    }
-                });
+                );
 
                 return {
                     cursor,
@@ -419,8 +434,10 @@
                     availableFonts,
                     darkThemes,
                     lightThemes,
-                    openSettingsModal: () => isSettingsModalOpen.value = true,
-                    closeSettingsModal: () => isSettingsModalOpen.value = false
+                    wordWrap,
+                    openSettingsModal,
+                    closeSettingsModal,
+                    restoreDefaults
                 };
             }
         }).mount('#app');
