@@ -27,8 +27,11 @@
                 font-family: monospace;
                 color: #666;
             }
+            .controls {
+                display: flex;
+            }
             .select {
-                margin-left: 10px;
+                margin-left: 0;
                 border-left: 1px solid #ddd;
                 height: 100%;
                 padding: 0 15px;
@@ -39,6 +42,10 @@
                 border: none;
                 background: none;
                 padding-right: 1.5em;
+            }
+            .select select:focus {
+                box-shadow: none;
+                outline: none;
             }
             .select:not(:hover)::after {
                 border-color: #666;
