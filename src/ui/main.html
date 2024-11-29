@@ -40,7 +40,8 @@
             .settings-button {
                 display: flex;
                 align-items: center;
-                padding: 0 8px 0 4px;
+                justify-content: center;
+                width: 40px;
                 margin-right: 15px;
                 border-right: 1px solid #ddd;
                 height: 100%;
@@ -101,21 +102,24 @@
                 height: 100%;
                 background-color: rgba(0,0,0,0.4);
             }
-            .modal-content {
-                background-color: #fff;
-                margin: 15% auto;
-                width: 400px;
+            .modal-card {
+                background: #fff;
                 border-radius: 6px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                width: 400px;
+                margin: 0 auto;
+                margin-top: 10%;
             }
-            .modal-header {
+            .modal-card-head {
+                background-color: #f5f5f5;
+                border-bottom: 1px solid #ddd;
+                border-top-left-radius: 6px;
+                border-top-right-radius: 6px;
                 padding: 15px 20px;
-                border-bottom: 1px solid #eee;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
             }
-            .modal-title {
+            .modal-card-title {
                 margin: 0;
                 font-size: 1.1em;
                 font-weight: 500;
@@ -123,24 +127,18 @@
                 flex-grow: 1;
             }
             .modal-close {
-                display: flex;
-                padding: 4px;
-                border-radius: 4px;
-                cursor: pointer;
                 margin-left: 15px;
+                cursor: pointer;
+                opacity: 0.7;
+            }
+            .modal-close:hover {
+                opacity: 1;
             }
             .modal-close svg {
                 width: 18px;
                 height: 18px;
-                color: #999;
             }
-            .modal-close:hover {
-                background-color: rgba(0,0,0,0.05);
-            }
-            .modal-close:hover svg {
-                color: #666;
-            }
-            .modal-body {
+            .modal-card-body {
                 padding: 20px;
             }
             .setting-row {
@@ -168,6 +166,20 @@
             .setting-row select:focus {
                 outline: none;
                 border-color: #4a9eff;
+            }
+            .font-size-control {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                width: 200px;
+            }
+            .font-size-control input[type="range"] {
+                flex: 1;
+            }
+            #fontSizeValue {
+                font-size: 0.9em;
+                color: #666;
+                min-width: 45px;
             }
         </style>
     </head>
@@ -211,18 +223,24 @@
         </div>
 
         <div id="settingsModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title">Editor Settings
+            <div class="modal-card">
+                <div class="modal-card-head">
+                    <h3 class="modal-card-title">Settings</h3>
                     <div class="modal-close">
                         <i data-lucide="x"></i>
                     </div>
-                </h3>
                 </div>
-                <div class="modal-body">
+                <div class="modal-card-body">
                     <div class="setting-row">
                         <label>Font Family</label>
                         <select id="fontSelect"></select>
+                    </div>
+                    <div class="setting-row">
+                        <label>Font Size</label>
+                        <div class="font-size-control">
+                            <input type="range" id="fontSizeRange" min="8" max="24" value="14" step="1">
+                            <span id="fontSizeValue">14px</span>
+                        </div>
                     </div>
                     <div class="setting-row">
                         <label>Theme</label>
@@ -341,6 +359,16 @@
             // Handle font changes
             document.getElementById('fontSelect').addEventListener('change', function(e) {
                 editor.container.style.fontFamily = e.target.value;
+            });
+
+            // Handle font size changes
+            const fontSizeRange = document.getElementById('fontSizeRange');
+            const fontSizeValue = document.getElementById('fontSizeValue');
+            
+            fontSizeRange.addEventListener('input', function(e) {
+                const size = e.target.value;
+                fontSizeValue.textContent = size + 'px';
+                editor.setFontSize(size);
             });
 
             // Handle indentation changes
