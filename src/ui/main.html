@@ -3,6 +3,7 @@
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="lib/bulma/bulma.min.css">
+        <script src="https://unpkg.com/lucide@latest"></script>
         <style type="text/css" media="screen">
             #editor { 
                 position: absolute;
@@ -30,6 +31,18 @@
             .position-info {
                 color: #666;
                 pointer-events: none;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+            .settings-icon {
+                cursor: pointer;
+                color: #666;
+                padding: 5px;
+                border-radius: 4px;
+            }
+            .settings-icon:hover {
+                background-color: rgba(0,0,0,0.05);
             }
             .controls {
                 display: flex;
@@ -61,6 +74,44 @@
                 color: #999;
                 background-color: #f5f5f5;
             }
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 1000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.4);
+            }
+            .modal-content {
+                background-color: #fefefe;
+                margin: 15% auto;
+                padding: 20px;
+                border-radius: 5px;
+                width: 400px;
+            }
+            .modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+            }
+            .modal-close {
+                cursor: pointer;
+                font-size: 20px;
+                color: #666;
+            }
+            .modal-body {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+            .setting-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
         </style>
     </head>
     <body>
@@ -71,7 +122,8 @@
 }</div>
         <div id="statusbar">
             <div class="position-info">
-                Line: <span id="lineCounter">1</span>, Column: <span id="columnCounter">1</span>
+                <i data-lucide="settings" class="settings-icon" id="settingsButton"></i>
+                <span>Line: <span id="lineCounter">1</span>, Column: <span id="columnCounter">1</span></span>
             </div>
             <div class="controls">
                 <div class="select is-small">
@@ -94,24 +146,84 @@
                         <option value="abap">ABAP</option>
                         <option value="abc">ABC</option>
                         <option value="actionscript">ActionScript</option>
-                        <!-- More languages/syntaxes -->
                         <option value="javascript" selected>JavaScript</option>
-                        
                     </select>
                 </div>
             </div>
         </div>
+
+        <div id="settingsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Editor Settings</h3>
+                    <span class="modal-close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-row">
+                        <label>Font Family</label>
+                        <select id="fontSelect" class="select">
+                            <option value="Monaco">Monaco</option>
+                            <option value="Menlo">Menlo</option>
+                            <option value="Consolas">Consolas</option>
+                            <option value="Source Code Pro">Source Code Pro</option>
+                        </select>
+                    </div>
+                    <div class="setting-row">
+                        <label>Theme</label>
+                        <select id="themeSelect" class="select">
+                            <option value="monokai">Monokai</option>
+                            <option value="github">GitHub</option>
+                            <option value="tomorrow">Tomorrow</option>
+                            <option value="twilight">Twilight</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script src="lib/ace/ace.js" type="text/javascript" charset="utf-8"></script>
         <script>
             var editor = ace.edit("editor");
             editor.setTheme("ace/theme/monokai");
             editor.session.setMode("ace/mode/javascript");
             
+            // Initialize Lucide icons
+            lucide.createIcons();
+            
             // Update line/column counter
             editor.selection.on('changeCursor', function() {
                 var pos = editor.getCursorPosition();
                 document.getElementById('lineCounter').textContent = pos.row + 1;
                 document.getElementById('columnCounter').textContent = pos.column + 1;
+            });
+
+            // Handle settings modal
+            const modal = document.getElementById('settingsModal');
+            const settingsBtn = document.getElementById('settingsButton');
+            const closeBtn = document.querySelector('.modal-close');
+
+            settingsBtn.onclick = function() {
+                modal.style.display = "block";
+            }
+
+            closeBtn.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            // Handle theme changes
+            document.getElementById('themeSelect').addEventListener('change', function(e) {
+                editor.setTheme("ace/theme/" + e.target.value);
+            });
+
+            // Handle font changes
+            document.getElementById('fontSelect').addEventListener('change', function(e) {
+                editor.container.style.fontFamily = e.target.value;
             });
 
             // Handle indentation changes
