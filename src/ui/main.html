@@ -5,12 +5,22 @@
         <link rel="stylesheet" href="lib/bulma/bulma.min.css">
         <script src="https://unpkg.com/lucide@latest"></script>
         <style type="text/css" media="screen">
+            * {
+                user-select: none;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+            }
             #editor { 
                 position: absolute;
                 top: 0;
                 right: 0;
                 bottom: 40px;
                 left: 0;
+                user-select: text;
+                -webkit-user-select: text;
+                -moz-user-select: text;
+                -ms-user-select: text;
             }
             #statusbar {
                 position: absolute;
@@ -19,33 +29,37 @@
                 height: 40px;
                 background-color: #f5f5f5;
                 border-top: 1px solid #ddd;
-                padding: 0 10px;
+                padding: 0;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                user-select: none;
             }
             .select, .position-info {
                 font-size: 0.875rem;
             }
             .position-info {
                 color: #666;
-                pointer-events: none;
                 display: flex;
                 align-items: center;
-                gap: 15px;
+                padding: 0 15px;
             }
             .settings-icon {
                 cursor: pointer;
                 color: #666;
                 padding: 5px;
                 border-radius: 4px;
+                width: 18px;
+                height: 18px;
+                margin-right: 15px;
+                border-right: 1px solid #ddd;
+                padding-right: 25px;
             }
             .settings-icon:hover {
                 background-color: rgba(0,0,0,0.05);
             }
             .controls {
                 display: flex;
+                height: 100%;
             }
             .select {
                 margin-left: 0;
@@ -59,7 +73,6 @@
                 border: none;
                 background: none;
                 padding-right: 1.5em;
-                pointer-events: auto;
                 cursor: pointer;
             }
             .select select:focus {
@@ -202,8 +215,9 @@
             const settingsBtn = document.getElementById('settingsButton');
             const closeBtn = document.querySelector('.modal-close');
 
-            settingsBtn.onclick = function() {
+            settingsBtn.onclick = function(e) {
                 modal.style.display = "block";
+                e.stopPropagation();
             }
 
             closeBtn.onclick = function() {
@@ -227,35 +241,14 @@
             });
 
             // Handle indentation changes
-            let currentSize = 4;
-            let usingSoftTabs = true;
-
             document.getElementById('indentSizeSelect').addEventListener('change', function(e) {
-                currentSize = parseInt(e.target.value);
-                updateIndentation();
+                const size = parseInt(e.target.value);
+                editor.session.setTabSize(size);
             });
 
             document.getElementById('indentTypeSelect').addEventListener('change', function(e) {
-                usingSoftTabs = (e.target.value === 'spaces');
-                updateIndentation();
+                editor.session.setUseSoftTabs(e.target.value === 'spaces');
             });
-
-            function updateIndentation() {
-                editor.session.setUseSoftTabs(usingSoftTabs);
-                editor.session.setTabSize(currentSize);
-                
-                // Re-indent all lines
-                var lines = editor.session.doc.getAllLines();
-                lines.forEach((line, i) => {
-                    if (line.trim()) {
-                        var indent = line.match(/^\s*/)[0];
-                        var spaces = indent.length;
-                        var newIndent = ' '.repeat(Math.floor(spaces / editor.session.getTabSize()) * currentSize);
-                        editor.session.doc.removeInLine(i, 0, spaces);
-                        editor.session.doc.insertInLine({row: i, column: 0}, newIndent);
-                    }
-                });
-            }
 
             // Handle syntax changes
             document.getElementById('syntaxSelect').addEventListener('change', function(e) {
