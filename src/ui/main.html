@@ -7,188 +7,339 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        * { user-select: none; -webkit-user-select: none; }
-        #editor { 
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 40px;
-            left: 0;
-            user-select: text;
-            -webkit-user-select: text;
-        }
-        #statusbar {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 40px;
-            background-color: #f5f5f5;
-            border-top: 1px solid #ddd;
-            display: flex;
-            justify-content: space-between;
-            align-items: stretch;
-        }
-        .modal-background {
-            background-color: rgba(0, 0, 0, 0.2) !important;
-        }
-        .select, .position-info { font-size: 0.875rem; }
-        .position-info {
-            color: #666;
-            display: flex;
-            align-items: center;
-        }
-        .position-info span {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 200px; /* Adjust as needed */
-            display: inline-block;
-        }
-        .settings-button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            border-right: 1px solid #ddd;
-            height: 100%;
-            transition: width 0.2s;
-            cursor: pointer;
-        }
-        .settings-button:hover { background-color: rgba(0,0,0,0.05); }
-        .settings-button svg {
-            width: 16px;
-            height: 16px;
-            color: #666;
-        }
-        .controls {
-            display: flex;
-            height: 100%;
-        }
-        .select-wrapper {
-            position: relative;
-            height: 100%;
-            border-left: 1px solid #ddd;
-            display: flex;
-            align-items: center;
-            padding: 0 15px;
-        }
-        .select-wrapper::after {
-            content: "";
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 0;
-            height: 0;
-            border-left: 4px solid transparent;
-            border-right: 4px solid transparent;
-            border-top: 4px solid #666;
-            pointer-events: none;
-        }
-        .select-wrapper select {
-            border: none;
-            background: none;
-            padding-right: 1.5em;
-            cursor: pointer;
-            font-size: 0.875rem;
-            color: #666;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-        .select-wrapper select:focus {
-            outline: none;
-        }
-        .modal-card {
-            width: 400px;
-            margin: 0 auto;
-            margin-top: 10px !important;
-        }
-        .modal-card-head {
-            padding: 10px 15px;
-        }
-        .modal-card-body {
-            padding: 20px 25px;
-        }
-        .modal-card-foot {
-            padding: 10px 15px;
-            justify-content: flex-end;
-            background: transparent;
-            border-top: 1px solid #eee;
-        }
-        .modal-card-foot .button {
-            background: transparent;
-            border: none;
-            color: #666;
-        }
-        .modal-card-foot .button:hover {
-            background: rgba(0,0,0,0.05);
-        }
-        .modal-card-title {
-            font-size: 1rem;
-        }
-        .font-size-control {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            width: 200px;
-        }
-        .font-size-control input[type="range"] {
-            flex: 1;
-            height: 6px;
-            -webkit-appearance: none;
-            background: #ddd;
-            border-radius: 3px;
-        }
-        .font-size-control input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: #4a9eff;
-            cursor: pointer;
-            border: none;
-        }
-        .setting-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .setting-row:last-child {
-            margin-bottom: 0;
-        }
-        .setting-row label {
-            color: #666;
-            font-size: 0.9em;
-        }
-        .setting-row select {
-            width: 200px;
-            padding: 6px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #fff;
-            font-size: 0.9em;
-            color: #333;
-        }
-        .button.is-small {
-            height: 2em;
-            padding-left: 1em;
-            padding-right: 1em;
-        }
-        .word-wrap-toggle {
-            display: flex;
-            align-items: center;
-        }
-        .word-wrap-toggle input[type="checkbox"] {
-            margin-right: 8px;
-        }
+        /* Variables */
+:root {
+    --modal-bg: #fff;
+    --modal-border: #eee;
+    --text-color: #666;
+    --hover-bg: rgba(0,0,0,0.05);
+    --modal-overlay: rgba(0, 0, 0, 0.2);
+    --statusbar-bg: #f5f5f5;
+    --statusbar-border: #ddd;
+    --statusbar-divider: #ddd;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --modal-bg: #2c2c2c;
+        --modal-border: #444;
+        --text-color: #ccc;
+        --hover-bg: rgba(255,255,255,0.05);
+        --modal-overlay: rgba(0, 0, 0, 0.4);
+        --statusbar-bg: #1c1c1c;
+        --statusbar-border: #333;
+        --statusbar-divider: #333;
+        --modal-header-text: #fff;
+        --input-bg: #3a3a3a;
+        --input-text: #fff;
+        --label-text: #bbb;
+        --checkbox-text: #ddd;
+        --slider-text: #ddd;
+    }
+}
+
+/* Base */
+* { user-select: none; -webkit-user-select: none; }
+
+/* Editor */
+#editor { 
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 40px;
+    left: 0;
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+/* Status Bar */
+#statusbar {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 40px;
+    background-color: var(--statusbar-bg);
+    border-top: 1px solid var(--statusbar-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+}
+
+.select, .position-info { font-size: 0.875rem; }
+
+.position-info {
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+}
+
+.position-info span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    display: inline-block;
+}
+
+.settings-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    border-right: 1px solid var(--statusbar-divider);
+    height: 100%;
+    transition: width 0.2s;
+    cursor: pointer;
+}
+
+.settings-button:hover { background-color: var(--hover-bg); }
+
+.settings-button svg {
+    width: 16px;
+    height: 16px;
+    color: var(--text-color);
+}
+
+.controls {
+    display: flex;
+    height: 100%;
+}
+
+.select-wrapper {
+    position: relative;
+    height: 100%;
+    border-left: 1px solid var(--statusbar-divider);
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+}
+
+.select-wrapper::after {
+    content: "";
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid var(--text-color);
+    pointer-events: none;
+}
+
+.select-wrapper select {
+    border: none;
+    background: none;
+    padding-right: 1.5em;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--text-color);
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.select-wrapper select:focus {
+    outline: none;
+}
+
+/* Modal */
+.modal-background {
+    background-color: var(--modal-overlay) !important;
+}
+
+.modal-card {
+    width: 400px;
+    margin: 0 auto;
+    margin-top: 10px !important;
+}
+
+.modal-card-head {
+    padding: 10px 15px;
+    background: var(--modal-bg);
+}
+
+.modal-card-title {
+    font-size: 1rem;
+    color: var(--modal-header-text);
+}
+
+.modal-card-body {
+    padding: 20px 25px;
+    background: var(--modal-bg);
+}
+
+.modal-card-foot {
+    padding: 10px 15px;
+    justify-content: flex-end;
+    background: var(--modal-bg);
+    border-top: 1px solid var(--modal-border);
+}
+
+.modal-card-foot .button {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    height: 2em;
+    padding: 0 1em;
+}
+
+.modal-card-foot .button:hover {
+    background: var(--hover-bg);
+}
+
+/* Settings Form */
+.setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.setting-row:last-child {
+    margin-bottom: 0;
+}
+
+.setting-row label {
+    color: var(--label-text);
+    font-size: 0.9em;
+}
+
+.setting-row select {
+   width: 200px;
+   padding: 6px 12px;
+   border: 1px solid var(--statusbar-divider);
+   border-radius: 4px;
+   background-color: var(--input-bg);
+   color: var(--input-text);
+   font-size: 0.9em;
+   appearance: none;
+}
+
+.setting-row select:hover {
+   border-color: #4a9eff;
+}
+
+.setting-row select:focus {
+   outline: none;
+   border-color: #4a9eff;
+   box-shadow: 0 0 0 1px #4a9eff;
+}
+
+/* Remove gradient from select in WebKit */
+.setting-row select {
+   background-image: none;
+}
+
+/* Custom dropdown arrow */
+.setting-row {
+   position: relative;
+}
+
+.setting-row:has(select)::after {
+    content: "";
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid var(--text-color);
+    pointer-events: none;
+}
+
+/* Font Size Control */
+.font-size-control {
+   display: flex;
+   align-items: center;
+   gap: 10px;
+   width: 200px;
+   justify-content: space-between;
+}
+
+/* Slider styling */
+.font-size-control input[type="range"] {
+   -webkit-appearance: none;
+   background: var(--input-bg);
+   border: 1px solid var(--statusbar-divider);
+   border-radius: 4px;
+   height: 8px;
+   width: 140px; /* Adjust width to match dropdowns */
+}
+
+.font-size-control input[type="range"]::-webkit-slider-thumb {
+   -webkit-appearance: none;
+   width: 16px;
+   height: 16px;
+   border-radius: 4px;
+   background: #4a9eff;
+   cursor: pointer;
+   border: none;
+}
+
+.font-size-control input[type="range"]:focus {
+   border-color: #4a9eff;
+   box-shadow: 0 0 0 1px #4a9eff;
+}
+
+.font-size-control span {
+    color: var(--slider-text);
+    min-width: 40px; /* Ensure consistent width */
+   text-align: right;
+}
+
+/* Word Wrap Toggle */
+.word-wrap-toggle {
+    display: flex;
+    align-items: center;
+}
+
+.word-wrap-toggle input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.word-wrap-toggle span {
+    color: var(--checkbox-text);
+}
+
+/* Checkbox styling */
+.word-wrap-toggle input[type="checkbox"] {
+   -webkit-appearance: none;
+   appearance: none;
+   width: 16px;
+   height: 16px;
+   border: 1px solid var(--statusbar-divider);
+   border-radius: 4px;
+   background: var(--input-bg);
+   cursor: pointer;
+   position: relative;
+   margin-right: 8px;
+}
+
+.word-wrap-toggle input[type="checkbox"]:checked {
+   background: #4a9eff;
+   border-color: #4a9eff;
+}
+
+.word-wrap-toggle input[type="checkbox"]:checked::after {
+   content: "";
+   position: absolute;
+   left: 5px;
+   top: 2px;
+   width: 4px;
+   height: 8px;
+   border: solid white;
+   border-width: 0 2px 2px 0;
+   transform: rotate(45deg);
+}
     </style>
 </head>
 <body>
     <div id="app">
-        <div id="editor">function helloWorld() {
-    console.log("Hello, World!");
-    return "Hello!";
+        <div id="editor">function helloGrace() {<br>
+    console.log("Hello, Grace!");<br>
+    return "Hello!";<br>
 }</div>
         <div id="statusbar">
             <div class="position-info">
@@ -264,7 +415,7 @@
                         </div>
                     </div>
                 </section>
-                <footer class="modal-card-foot" style="background: white; border-top: 1px solid #eee">
+                <footer class="modal-card-foot">
                     <button class="button is-small" @click="restoreDefaults">
                         <i data-lucide="rotate-ccw" class="icon is-small mr-1"></i>
                         Restore Defaults
