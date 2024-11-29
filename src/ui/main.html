@@ -42,7 +42,7 @@
             .settings-button {
                 display: flex;
                 align-items: center;
-                padding: 0 8px;
+                padding: 0 4px;
                 border-right: 1px solid #ddd;
                 cursor: pointer;
             }
@@ -58,11 +58,25 @@
                 height: 100%;
             }
             .select-wrapper {
+                position: relative;
                 height: 100%;
                 border-left: 1px solid #ddd;
                 display: flex;
                 align-items: center;
                 padding: 0 15px;
+            }
+            .select-wrapper::after {
+                content: "";
+                position: absolute;
+                right: 6px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 0;
+                height: 0;
+                border-left: 4px solid transparent;
+                border-right: 4px solid transparent;
+                border-top: 4px solid #666;
+                pointer-events: none;
             }
             .select-wrapper select {
                 border: none;
@@ -167,10 +181,10 @@
             <div class="controls">
                 <div class="select-wrapper">
                     <select id="indentSizeSelect">
-                        <option value="1">1 Space</option>
-                        <option value="2">2 Spaces</option>
-                        <option value="4" selected>4 Spaces</option>
-                        <option value="8">8 Spaces</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="4" selected>4</option>
+                        <option value="8">8</option>
                     </select>
                 </div>
                 <div class="select-wrapper">
@@ -265,16 +279,22 @@
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
 
+                function checkFontAvailable(font) {
+                    const baseWidth = context.measureText(testString).width;
+                    try {
+                        context.font = `${testSize} ${font}, monospace`;
+                        return context.measureText(testString).width !== baseWidth;
+                    } catch (e) {
+                        return false;
+                    }
+                }
+
                 const availableFonts = [
                     'Consolas', 'Monaco', 'Menlo', 'Source Code Pro', 'Fira Code', 
-                    'JetBrains Mono', 'Cascadia Code', 'IBM Plex Mono', 'Ubuntu Mono'
-                ].filter(font => {
-                    context.font = `${testSize} ${font}`;
-                    const width1 = context.measureText(testString).width;
-                    context.font = `${testSize} monospace`;
-                    const width2 = context.measureText(testString).width;
-                    return width1 === width2;
-                });
+                    'JetBrains Mono', 'Cascadia Code', 'IBM Plex Mono', 'Ubuntu Mono',
+                    'Courier New', 'DejaVu Sans Mono', 'Liberation Mono', 'Roboto Mono',
+                    'PT Mono', 'Inconsolata', 'Hack', 'Droid Sans Mono', 'Anonymous Pro'
+                ].filter(checkFontAvailable);
 
                 availableFonts.forEach(font => {
                     const option = document.createElement('option');
@@ -309,19 +329,35 @@
                 });
             });
 
+            function convertIndentation(value) {
+                const lines = editor.session.doc.getAllLines();
+                const useTabs = value === 'tabs';
+                const tabSize = editor.session.getTabSize();
+
+                lines.forEach((line, i) => {
+                    if (line.trim()) {
+                        const indent = line.match(/^\s*/)[0];
+                        let indentLevel;
+                        
+                        if (indent.includes('\t')) {
+                            indentLevel = indent.length;  // If tabs, each character is one level
+                        } else {
+                            indentLevel = Math.floor(indent.length / tabSize);  // If spaces, divide by tab size
+                        }
+                        
+                        const newIndent = useTabs ? 
+                            '\t'.repeat(indentLevel) : 
+                            ' '.repeat(indentLevel * tabSize);
+                            
+                        editor.session.doc.removeInLine(i, 0, indent.length);
+                        editor.session.doc.insertInLine({row: i, column: 0}, newIndent);
+                    }
+                });
+            }
+
             document.getElementById('indentTypeSelect').addEventListener('change', function(e) {
                 editor.session.setUseSoftTabs(e.target.value === 'spaces');
-                if (e.target.value === 'tabs') {
-                    editor.session.doc.getAllLines().forEach((line, i) => {
-                        if (line.trim()) {
-                            var indent = line.match(/^\s*/)[0];
-                            var indentLevel = indent.length / editor.session.getTabSize();
-                            var newIndent = '\t'.repeat(indentLevel);
-                            editor.session.doc.removeInLine(i, 0, indent.length);
-                            editor.session.doc.insertInLine({row: i, column: 0}, newIndent);
-                        }
-                    });
-                }
+                convertIndentation(e.target.value);
             });
 
             // Handle syntax changes
