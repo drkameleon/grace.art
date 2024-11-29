@@ -110,13 +110,20 @@
             });
 
             // Handle indentation changes
+            let currentSize = 4;
+            let usingSoftTabs = true;
+
             document.getElementById('indentationSelect').addEventListener('change', function(e) {
-                var value = e.target.value;
-                var size = parseInt(value) || 4;
-                var useSoftTabs = value === 'spaces';
+                const value = e.target.value;
                 
-                editor.session.setUseSoftTabs(useSoftTabs);
-                editor.session.setTabSize(size);
+                if (value.match(/^\d+/)) {
+                    currentSize = parseInt(value);
+                } else {
+                    usingSoftTabs = (value === 'spaces');
+                }
+                
+                editor.session.setUseSoftTabs(usingSoftTabs);
+                editor.session.setTabSize(currentSize);
                 
                 // Re-indent all lines
                 var lines = editor.session.doc.getAllLines();
@@ -124,7 +131,7 @@
                     if (line.trim()) {
                         var indent = line.match(/^\s*/)[0];
                         var spaces = indent.length;
-                        var newIndent = ' '.repeat(Math.floor(spaces / editor.session.getTabSize()) * size);
+                        var newIndent = ' '.repeat(Math.floor(spaces / editor.session.getTabSize()) * currentSize);
                         editor.session.doc.removeInLine(i, 0, spaces);
                         editor.session.doc.insertInLine({row: i, column: 0}, newIndent);
                     }
