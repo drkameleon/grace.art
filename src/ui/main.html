@@ -3,7 +3,6 @@
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="lib/bulma/bulma.min.css">
-        <script src="https://unpkg.com/lucide@latest"></script>
         <style type="text/css" media="screen">
             * {
                 user-select: none;
@@ -135,7 +134,7 @@
 }</div>
         <div id="statusbar">
             <div class="position-info">
-                <i data-lucide="settings" class="settings-icon" id="settingsButton"></i>
+                <i data-lucide="x" class="settings-icon" id="settingsButton"></i>
                 <span>Line: <span id="lineCounter">1</span>, Column: <span id="columnCounter">1</span></span>
             </div>
             <div class="controls">
@@ -195,6 +194,7 @@
         </div>
 
         <script src="lib/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+        <script src="https://unpkg.com/lucide@latest"></script>
         <script>
             var editor = ace.edit("editor");
             editor.setTheme("ace/theme/monokai");
