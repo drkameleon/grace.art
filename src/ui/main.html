@@ -36,15 +36,14 @@
                 color: #666;
                 display: flex;
                 align-items: center;
-                padding: 0 15px;
-                gap: 15px;
             }
             .settings-button {
                 display: flex;
                 align-items: center;
-                padding: 0 4px;
+                padding: 0 8px 0 4px;
+                margin-right: 15px;
                 border-right: 1px solid #ddd;
-                cursor: pointer;
+                height: 100%;
             }
             .settings-button:hover {
                 background-color: rgba(0,0,0,0.05);
@@ -52,6 +51,7 @@
             .settings-button svg {
                 width: 16px;
                 height: 16px;
+                color: #666;
             }
             .controls {
                 display: flex;
@@ -68,7 +68,7 @@
             .select-wrapper::after {
                 content: "";
                 position: absolute;
-                right: 6px;
+                right: 8px;
                 top: 50%;
                 transform: translateY(-50%);
                 width: 0;
@@ -116,23 +116,29 @@
                 align-items: center;
             }
             .modal-title {
-                font-size: 1.1em;
-                font-weight: 600;
-                color: #333;
                 margin: 0;
+                font-size: 1.1em;
+                font-weight: 500;
+                color: #333;
+                flex-grow: 1;
             }
             .modal-close {
-                cursor: pointer;
-                color: #999;
                 display: flex;
-                align-items: center;
-            }
-            .modal-close:hover {
-                color: #666;
+                padding: 4px;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-left: 15px;
             }
             .modal-close svg {
                 width: 18px;
                 height: 18px;
+                color: #999;
+            }
+            .modal-close:hover {
+                background-color: rgba(0,0,0,0.05);
+            }
+            .modal-close:hover svg {
+                color: #666;
             }
             .modal-body {
                 padding: 20px;
@@ -203,11 +209,15 @@
                 </div>
             </div>
         </div>
-            <div id="settingsModal" class="modal">
+
+        <div id="settingsModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3 class="modal-title">Settings</h3>
-                    <i data-lucide="x" class="modal-close" style="width: 20px; height: 20px; cursor: pointer;"></i>
+                    <h3 class="modal-title">Editor Settings
+                    <div class="modal-close">
+                        <i data-lucide="x"></i>
+                    </div>
+                </h3>
                 </div>
                 <div class="modal-body">
                     <div class="setting-row">
@@ -291,7 +301,7 @@
                 editor.setTheme("ace/theme/" + e.target.value);
             });
 
-            // Populate available monospace fonts
+            // Initialize available fonts
             async function populateMonospaceFonts() {
                 const fonts = await document.fonts.ready;
                 const fontSelect = document.getElementById('fontSelect');
@@ -335,51 +345,39 @@
 
             // Handle indentation changes
             document.getElementById('indentSizeSelect').addEventListener('change', function(e) {
-                const size = parseInt(e.target.value);
-                editor.session.setTabSize(size);
+                const newSize = parseInt(e.target.value);
+                const oldSize = editor.session.getTabSize();
+                editor.session.setTabSize(newSize);
                 
-                // Re-indent all lines
-                var lines = editor.session.doc.getAllLines();
+                const lines = editor.session.doc.getAllLines();
                 lines.forEach((line, i) => {
                     if (line.trim()) {
-                        var indent = line.match(/^\s*/)[0];
-                        var indentLevel = indent.length / editor.session.getTabSize();
-                        var newIndent = ' '.repeat(indentLevel * size);
+                        const indent = line.match(/^\s*/)[0];
+                        const indentLevel = Math.floor(indent.length / oldSize);
+                        const newIndent = ' '.repeat(indentLevel * newSize);
                         editor.session.doc.removeInLine(i, 0, indent.length);
                         editor.session.doc.insertInLine({row: i, column: 0}, newIndent);
                     }
                 });
             });
 
-            function convertIndentation(value) {
+            document.getElementById('indentTypeSelect').addEventListener('change', function(e) {
+                const useTabs = e.target.value === 'tabs';
+                editor.session.setUseSoftTabs(!useTabs);
+                
+                const size = editor.session.getTabSize();
                 const lines = editor.session.doc.getAllLines();
-                const useTabs = value === 'tabs';
-                const tabSize = editor.session.getTabSize();
-
+                
                 lines.forEach((line, i) => {
                     if (line.trim()) {
                         const indent = line.match(/^\s*/)[0];
-                        let indentLevel;
+                        const indentLevel = Math.floor(indent.length / size);
+                        const newIndent = useTabs ? '\t'.repeat(indentLevel) : ' '.repeat(indentLevel * size);
                         
-                        if (indent.includes('\t')) {
-                            indentLevel = indent.length;  // If tabs, each character is one level
-                        } else {
-                            indentLevel = Math.floor(indent.length / tabSize);  // If spaces, divide by tab size
-                        }
-                        
-                        const newIndent = useTabs ? 
-                            '\t'.repeat(indentLevel) : 
-                            ' '.repeat(indentLevel * tabSize);
-                            
                         editor.session.doc.removeInLine(i, 0, indent.length);
                         editor.session.doc.insertInLine({row: i, column: 0}, newIndent);
                     }
                 });
-            }
-
-            document.getElementById('indentTypeSelect').addEventListener('change', function(e) {
-                editor.session.setUseSoftTabs(e.target.value === 'spaces');
-                convertIndentation(e.target.value);
             });
 
             // Handle syntax changes
