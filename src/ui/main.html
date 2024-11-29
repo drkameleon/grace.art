@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="lib/bulma/bulma.min.css">
-        <script src="https://unpkg.com/lucide@latest"></script>
-        <style type="text/css" media="screen">
-            * {
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.24.1/ace.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
+    <link rel="stylesheet" href="lib/bulma/bulma.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
                 user-select: none;
                 -webkit-user-select: none;
             }
@@ -183,9 +185,10 @@
                 color: #666;
                 min-width: 45px;
             }
-        </style>
-    </head>
-    <body>
+    </style>
+</head>
+<body>
+    <div id="app">
         <div id="editor">function helloGrace() {
     var x = "This is a very silly example";
     console.log("but still works...");
@@ -193,29 +196,26 @@
 }</div>
         <div id="statusbar">
             <div class="position-info">
-                <div class="settings-button" id="settingsButton">
+                <div class="settings-button" @click="openSettingsModal">
                     <i data-lucide="settings"></i>
                 </div>
-                <span>Line: <span id="lineCounter">1</span>, Column: <span id="columnCounter">1</span></span>
+                <span>Line: {{ cursor.row }}, Column: {{ cursor.column }}</span>
             </div>
             <div class="controls">
                 <div class="select-wrapper">
-                    <select id="indentSizeSelect">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="4" selected>4</option>
-                        <option value="8">8</option>
+                    <select v-model="indentSize">
+                        <option v-for="size in [1,2,4,8]" :value="size">{{ size }}</option>
                     </select>
                 </div>
                 <div class="select-wrapper">
-                    <select id="indentTypeSelect">
-                        <option value="spaces" selected>Spaces</option>
+                    <select v-model="indentType">
+                        <option value="spaces">Spaces</option>
                         <option value="tabs">Tabs</option>
                     </select>
                 </div>
                 <div class="select-wrapper">
-                    <select id="syntaxSelect">
-                        <option value="javascript" selected>JavaScript</option>
+                    <select v-model="syntax">
+                        <option value="javascript">JavaScript</option>
                         <option value="python">Python</option>
                         <option value="html">HTML</option>
                         <option value="css">CSS</option>
@@ -224,223 +224,157 @@
             </div>
         </div>
 
-        <div class="modal">
-            <div class="modal-background"></div>
+        <div class="modal" :class="{'is-active': isSettingsModalOpen}">
+            <div class="modal-background" @click="closeSettingsModal"></div>
             <div class="modal-card">
                 <header class="modal-card-head">
                     <p class="modal-card-title">Settings</p>
-                    <button class="delete" aria-label="close"></button>
+                    <button class="delete" @click="closeSettingsModal"></button>
                 </header>
                 <section class="modal-card-body">
                     <div class="setting-row">
                         <label>Font Family</label>
-                        <select id="fontSelect"></select>
+                        <select v-model="selectedFont">
+                            <option v-for="font in availableFonts" :value="font">{{ font }}</option>
+                        </select>
                     </div>
                     <div class="setting-row">
                         <label>Font Size</label>
                         <div class="font-size-control">
-                            <input type="range" id="fontSizeRange" min="8" max="24" value="14" step="1">
-                            <span id="fontSizeValue">14px</span>
+                            <input type="range" v-model="fontSize" min="8" max="24" step="1">
+                            <span>{{ fontSize }}px</span>
                         </div>
                     </div>
                     <div class="setting-row">
                         <label>Theme</label>
-                        <select id="themeSelect">
+                        <select v-model="theme">
                             <optgroup label="Dark Themes">
-                                <option value="ambiance">Ambiance</option>
-                                <option value="chaos">Chaos</option>
-                                <option value="clouds_midnight">Clouds Midnight</option>
-                                <option value="cobalt">Cobalt</option>
-                                <option value="dracula">Dracula</option>
-                                <option value="github_dark">GitHub Dark</option>
-                                <option value="gruvbox">Gruvbox</option>
-                                <option value="idle_fingers">Idle Fingers</option>
-                                <option value="monokai" selected>Monokai</option>
-                                <option value="nord_dark">Nord Dark</option>
-                                <option value="one_dark">One Dark</option>
-                                <option value="solarized_dark">Solarized Dark</option>
-                                <option value="terminal">Terminal</option>
-                                <option value="tomorrow_night">Tomorrow Night</option>
-                                <option value="twilight">Twilight</option>
+                                <option v-for="theme in darkThemes" :value="theme.value">
+                                    {{ theme.label }}
+                                </option>
                             </optgroup>
                             <optgroup label="Light Themes">
-                                <option value="chrome">Chrome</option>
-                                <option value="clouds">Clouds</option>
-                                <option value="crimson_editor">Crimson Editor</option>
-                                <option value="dawn">Dawn</option>
-                                <option value="dreamweaver">Dreamweaver</option>
-                                <option value="eclipse">Eclipse</option>
-                                <option value="github">GitHub Light</option>
-                                <option value="iplastic">IPlastic</option>
-                                <option value="solarized_light">Solarized Light</option>
-                                <option value="textmate">TextMate</option>
-                                <option value="tomorrow">Tomorrow</option>
-                                <option value="xcode">Xcode</option>
+                                <option v-for="theme in lightThemes" :value="theme.value">
+                                    {{ theme.label }}
+                                </option>
                             </optgroup>
                         </select>
                     </div>
-                </div>
+                </section>
             </div>
         </div>
+    </div>
 
-        <script src="lib/ace/ace.js" type="text/javascript" charset="utf-8"></script>
-        <script>
-            var editor = ace.edit("editor");
-            editor.setTheme("ace/theme/monokai");
-            editor.session.setMode("ace/mode/javascript");
-            
-            // Set initial gutter width to settings button
-            function updateSettingsButtonWidth() {
-                const gutter = document.querySelector('.ace_gutter');
-                if (gutter) {
-                    const width = gutter.offsetWidth;
-                    document.querySelector('.settings-button').style.width = width + 'px';
-                }
-            }
-            
-            // Update width when editor changes
-            // Update gutter width whenever content changes
-            editor.session.on('change', () => {
-                setTimeout(updateSettingsButtonWidth, 0);
-            });
-            
-            editor.session.on('changeScrollLeft', updateSettingsButtonWidth);
-            editor.renderer.on('resize', updateSettingsButtonWidth);
-            editor.session.on('changeScrollTop', updateSettingsButtonWidth);
-            
-            // Initial setup
-            setTimeout(updateSettingsButtonWidth, 100);
-            
-            // Initialize Lucide icons
-            lucide.createIcons();
-            
-            // Update line/column counter
-            editor.selection.on('changeCursor', function() {
-                var pos = editor.getCursorPosition();
-                document.getElementById('lineCounter').textContent = pos.row + 1;
-                document.getElementById('columnCounter').textContent = pos.column + 1;
-            });
+    <script>
+        const { createApp, onMounted, ref, watch } = Vue;
 
-            // Handle settings modal
-            const modal = document.getElementById('settingsModal');
-            const settingsBtn = document.getElementById('settingsButton');
-            const closeBtn = document.querySelector('.modal-close');
+        createApp({
+            setup() {
+                const editor = ref(null);
+                const cursor = ref({ row: 1, column: 1 });
+                const isSettingsModalOpen = ref(false);
+                const syntax = ref('javascript');
+                const theme = ref('monokai');
+                const indentSize = ref(4);
+                const indentType = ref('spaces');
+                const fontSize = ref(14);
+                const selectedFont = ref('Monaco');
+                const availableFonts = ref([]);
 
-            settingsBtn.onclick = function(e) {
-                modal.style.display = "block";
-                e.stopPropagation();
-            }
+                const darkThemes = [
+                    { value: 'ambiance', label: 'Ambiance' },
+                    { value: 'monokai', label: 'Monokai' },
+                    { value: 'dracula', label: 'Dracula' },
+                    // Add other dark themes
+                ];
 
-            closeBtn.onclick = function() {
-                modal.style.display = "none";
-            }
+                const lightThemes = [
+                    { value: 'chrome', label: 'Chrome' },
+                    { value: 'github', label: 'GitHub Light' },
+                    { value: 'eclipse', label: 'Eclipse' },
+                    // Add other light themes
+                ];
 
-            window.onclick = function(event) {
-                if (event.target == modal) {
-                    modal.style.display = "none";
-                }
-            }
+                onMounted(async () => {
+                    editor.value = ace.edit("editor");
+                    editor.value.setTheme("ace/theme/monokai");
+                    editor.value.session.setMode("ace/mode/javascript");
+                    editor.value.setFontSize(14);
 
-            // Handle theme changes
-            document.getElementById('themeSelect').addEventListener('change', function(e) {
-                editor.setTheme("ace/theme/" + e.target.value);
-            });
+                    editor.value.selection.on('changeCursor', () => {
+                        const pos = editor.value.getCursorPosition();
+                        cursor.value = {
+                            row: pos.row + 1,
+                            column: pos.column + 1
+                        };
+                    });
 
-            // Initialize available fonts
-            async function populateMonospaceFonts() {
-                const fonts = await document.fonts.ready;
-                const fontSelect = document.getElementById('fontSelect');
-                
-                const testString = 'ili1WM';
-                const testSize = '72px';
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
+                    // Initialize Lucide icons
+                    lucide.createIcons();
 
-                function checkFontAvailable(font) {
-                    const baseWidth = context.measureText(testString).width;
-                    try {
-                        context.font = `${testSize} ${font}, monospace`;
-                        return context.measureText(testString).width !== baseWidth;
-                    } catch (e) {
-                        return false;
-                    }
-                }
-
-                const availableFonts = [
-                    'Consolas', 'Monaco', 'Menlo', 'Source Code Pro', 'Fira Code', 
-                    'JetBrains Mono', 'Cascadia Code', 'IBM Plex Mono', 'Ubuntu Mono',
-                    'Courier New', 'DejaVu Sans Mono', 'Liberation Mono', 'Roboto Mono',
-                    'PT Mono', 'Inconsolata', 'Hack', 'Droid Sans Mono', 'Anonymous Pro'
-                ].filter(checkFontAvailable);
-
-                availableFonts.forEach(font => {
-                    const option = document.createElement('option');
-                    option.value = font;
-                    option.textContent = font;
-                    fontSelect.appendChild(option);
+                    // Populate available fonts
+                    await document.fonts.ready;
+                    const testFonts = [
+                        'Consolas', 'Monaco', 'Menlo', 'Source Code Pro', 'Fira Code',
+                        'JetBrains Mono', 'Ubuntu Mono', 'Courier New'
+                    ];
+                    availableFonts.value = testFonts.filter(font => document.fonts.check(`12px "${font}"`));
                 });
-            }
 
-            populateMonospaceFonts();
-
-            // Handle font changes
-            document.getElementById('fontSelect').addEventListener('change', function(e) {
-                editor.container.style.fontFamily = e.target.value;
-            });
-
-            // Handle font size changes
-            const fontSizeRange = document.getElementById('fontSizeRange');
-            const fontSizeValue = document.getElementById('fontSizeValue');
-            
-            fontSizeRange.addEventListener('input', function(e) {
-                const size = e.target.value;
-                fontSizeValue.textContent = size + 'px';
-                editor.setFontSize(parseInt(size));
-            });
-
-            // Handle indentation changes
-            document.getElementById('indentSizeSelect').addEventListener('change', function(e) {
-                const newSize = parseInt(e.target.value);
-                const oldSize = editor.session.getTabSize();
-                editor.session.setTabSize(newSize);
-                
-                const lines = editor.session.doc.getAllLines();
-                lines.forEach((line, i) => {
-                    if (line.trim()) {
-                        const indent = line.match(/^\s*/)[0];
-                        const indentLevel = Math.floor(indent.length / oldSize);
-                        const newIndent = ' '.repeat(indentLevel * newSize);
-                        editor.session.doc.removeInLine(i, 0, indent.length);
-                        editor.session.doc.insertInLine({row: i, column: 0}, newIndent);
-                    }
+                // Watchers for settings changes
+                watch(syntax, (newValue) => {
+                    editor.value?.session.setMode(`ace/mode/${newValue}`);
                 });
-            });
 
-            document.getElementById('indentTypeSelect').addEventListener('change', function(e) {
-                const useTabs = e.target.value === 'tabs';
-                editor.session.setUseSoftTabs(!useTabs);
-                
-                const size = editor.session.getTabSize();
-                const lines = editor.session.doc.getAllLines();
-                
-                lines.forEach((line, i) => {
-                    if (line.trim()) {
-                        const indent = line.match(/^\s*/)[0];
-                        const indentLevel = Math.floor(indent.length / size);
-                        const newIndent = useTabs ? '\t'.repeat(indentLevel) : ' '.repeat(indentLevel * size);
+                watch(theme, (newValue) => {
+                    editor.value?.setTheme(`ace/theme/${newValue}`);
+                });
+
+                watch(indentSize, (newValue) => {
+                    if (editor.value) {
+                        const oldSize = editor.value.session.getTabSize();
+                        editor.value.session.setTabSize(newValue);
                         
-                        editor.session.doc.removeInLine(i, 0, indent.length);
-                        editor.session.doc.insertInLine({row: i, column: 0}, newIndent);
+                        const lines = editor.value.session.doc.getAllLines();
+                        lines.forEach((line, i) => {
+                            if (line.trim()) {
+                                const indent = line.match(/^\s*/)[0];
+                                const indentLevel = Math.floor(indent.length / oldSize);
+                                const newIndent = ' '.repeat(indentLevel * newValue);
+                                editor.value.session.doc.removeInLine(i, 0, indent.length);
+                                editor.value.session.doc.insertInLine({row: i, column: 0}, newIndent);
+                            }
+                        });
                     }
                 });
-            });
 
-            // Handle syntax changes
-            document.getElementById('syntaxSelect').addEventListener('change', function(e) {
-                editor.session.setMode("ace/mode/" + e.target.value);
-            });
+                watch(fontSize, (newValue) => {
+                    editor.value?.setFontSize(parseInt(newValue));
+                });
 
-            document.getElementById('editor').style.display = 'block';
-        </script>
-    </body>
+                watch(selectedFont, (newValue) => {
+                    if (editor.value) {
+                        editor.value.container.style.fontFamily = newValue;
+                    }
+                });
+
+                return {
+                    cursor,
+                    isSettingsModalOpen,
+                    syntax,
+                    theme,
+                    indentSize,
+                    indentType,
+                    fontSize,
+                    selectedFont,
+                    availableFonts,
+                    darkThemes,
+                    lightThemes,
+                    openSettingsModal: () => isSettingsModalOpen.value = true,
+                    closeSettingsModal: () => isSettingsModalOpen.value = false
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
 </html>
