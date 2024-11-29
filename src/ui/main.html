@@ -102,41 +102,43 @@
                 height: 100%;
                 background-color: rgba(0,0,0,0.4);
             }
+            .modal {
+                display: none;
+            }
             .modal-card {
-                background: #fff;
-                border-radius: 6px;
                 width: 400px;
                 margin: 0 auto;
                 margin-top: 10%;
             }
-            .modal-card-head {
-                background-color: #f5f5f5;
-                border-bottom: 1px solid #ddd;
-                border-top-left-radius: 6px;
-                border-top-right-radius: 6px;
-                padding: 15px 20px;
+            .font-size-control {
                 display: flex;
-                justify-content: space-between;
                 align-items: center;
+                gap: 15px;
+                width: 200px;
             }
-            .modal-card-title {
-                margin: 0;
-                font-size: 1.1em;
-                font-weight: 500;
-                color: #333;
-                flex-grow: 1;
+            .font-size-control input[type="range"] {
+                flex: 1;
+                height: 6px;
+                -webkit-appearance: none;
+                background: #ddd;
+                border-radius: 3px;
             }
-            .modal-close {
-                margin-left: 15px;
+            .font-size-control input[type="range"]::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                background: #4a9eff;
                 cursor: pointer;
-                opacity: 0.7;
+                border: none;
             }
-            .modal-close:hover {
-                opacity: 1;
+            .font-size-control input[type="range"]:focus {
+                outline: none;
             }
-            .modal-close svg {
-                width: 18px;
-                height: 18px;
+            #fontSizeValue {
+                font-size: 0.9em;
+                color: #666;
+                min-width: 45px;
             }
             .modal-card-body {
                 padding: 20px;
@@ -222,15 +224,14 @@
             </div>
         </div>
 
-        <div id="settingsModal" class="modal">
+        <div class="modal">
+            <div class="modal-background"></div>
             <div class="modal-card">
-                <div class="modal-card-head">
-                    <h3 class="modal-card-title">Settings</h3>
-                    <div class="modal-close">
-                        <i data-lucide="x"></i>
-                    </div>
-                </div>
-                <div class="modal-card-body">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Settings</p>
+                    <button class="delete" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
                     <div class="setting-row">
                         <label>Font Family</label>
                         <select id="fontSelect"></select>
@@ -245,33 +246,37 @@
                     <div class="setting-row">
                         <label>Theme</label>
                         <select id="themeSelect">
-                            <option value="ambiance">Ambiance</option>
-                            <option value="chaos">Chaos</option>
-                            <option value="chrome">Chrome</option>
-                            <option value="clouds_midnight">Clouds Midnight</option>
-                            <option value="clouds">Clouds</option>
-                            <option value="cobalt">Cobalt</option>
-                            <option value="crimson_editor">Crimson Editor</option>
-                            <option value="dawn">Dawn</option>
-                            <option value="dracula">Dracula</option>
-                            <option value="dreamweaver">Dreamweaver</option>
-                            <option value="eclipse">Eclipse</option>
-                            <option value="github_dark">GitHub Dark</option>
-                            <option value="github">GitHub Light</option>
-                            <option value="gruvbox">Gruvbox</option>
-                            <option value="idle_fingers">Idle Fingers</option>
-                            <option value="iplastic">IPlastic</option>
-                            <option value="monokai" selected>Monokai</option>
-                            <option value="nord_dark">Nord Dark</option>
-                            <option value="one_dark">One Dark</option>
-                            <option value="solarized_dark">Solarized Dark</option>
-                            <option value="solarized_light">Solarized Light</option>
-                            <option value="terminal">Terminal</option>
-                            <option value="textmate">TextMate</option>
-                            <option value="tomorrow_night">Tomorrow Night</option>
-                            <option value="tomorrow">Tomorrow</option>
-                            <option value="twilight">Twilight</option>
-                            <option value="xcode">Xcode</option>
+                            <optgroup label="Dark Themes">
+                                <option value="ambiance">Ambiance</option>
+                                <option value="chaos">Chaos</option>
+                                <option value="clouds_midnight">Clouds Midnight</option>
+                                <option value="cobalt">Cobalt</option>
+                                <option value="dracula">Dracula</option>
+                                <option value="github_dark">GitHub Dark</option>
+                                <option value="gruvbox">Gruvbox</option>
+                                <option value="idle_fingers">Idle Fingers</option>
+                                <option value="monokai" selected>Monokai</option>
+                                <option value="nord_dark">Nord Dark</option>
+                                <option value="one_dark">One Dark</option>
+                                <option value="solarized_dark">Solarized Dark</option>
+                                <option value="terminal">Terminal</option>
+                                <option value="tomorrow_night">Tomorrow Night</option>
+                                <option value="twilight">Twilight</option>
+                            </optgroup>
+                            <optgroup label="Light Themes">
+                                <option value="chrome">Chrome</option>
+                                <option value="clouds">Clouds</option>
+                                <option value="crimson_editor">Crimson Editor</option>
+                                <option value="dawn">Dawn</option>
+                                <option value="dreamweaver">Dreamweaver</option>
+                                <option value="eclipse">Eclipse</option>
+                                <option value="github">GitHub Light</option>
+                                <option value="iplastic">IPlastic</option>
+                                <option value="solarized_light">Solarized Light</option>
+                                <option value="textmate">TextMate</option>
+                                <option value="tomorrow">Tomorrow</option>
+                                <option value="xcode">Xcode</option>
+                            </optgroup>
                         </select>
                     </div>
                 </div>
@@ -283,6 +288,28 @@
             var editor = ace.edit("editor");
             editor.setTheme("ace/theme/monokai");
             editor.session.setMode("ace/mode/javascript");
+            
+            // Set initial gutter width to settings button
+            function updateSettingsButtonWidth() {
+                const gutter = document.querySelector('.ace_gutter');
+                if (gutter) {
+                    const width = gutter.offsetWidth;
+                    document.querySelector('.settings-button').style.width = width + 'px';
+                }
+            }
+            
+            // Update width when editor changes
+            // Update gutter width whenever content changes
+            editor.session.on('change', () => {
+                setTimeout(updateSettingsButtonWidth, 0);
+            });
+            
+            editor.session.on('changeScrollLeft', updateSettingsButtonWidth);
+            editor.renderer.on('resize', updateSettingsButtonWidth);
+            editor.session.on('changeScrollTop', updateSettingsButtonWidth);
+            
+            // Initial setup
+            setTimeout(updateSettingsButtonWidth, 100);
             
             // Initialize Lucide icons
             lucide.createIcons();
@@ -368,7 +395,7 @@
             fontSizeRange.addEventListener('input', function(e) {
                 const size = e.target.value;
                 fontSizeValue.textContent = size + 'px';
-                editor.setFontSize(size);
+                editor.setFontSize(parseInt(size));
             });
 
             // Handle indentation changes
