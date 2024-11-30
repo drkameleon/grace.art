@@ -23,7 +23,7 @@ export module [
         } ++ as.code body
 
         pid: execute.async.args:@[ws] sys\binary
-        webview.title: "Grace — Untitled.js" {http://localhost:18966}
+        webview.debug.title: "Grace — Untitled.js" {http://localhost:18966}
         terminate pid
         delete ws
     ]
