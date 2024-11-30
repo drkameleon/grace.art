@@ -3,6 +3,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.css" media="print" onload="this.media='all'">
     <style>
         /* Variables */
         :root {
@@ -53,100 +54,127 @@
             -webkit-user-select: text;
         }
 
-        /* Status Bar */
-        #statusbar {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 40px;
-            background-color: var(--statusbar-bg);
-            border-top: 1px solid var(--statusbar-border);
-            display: flex;
-            justify-content: space-between;
-            align-items: stretch;
-        }
+        /* Status Bar Base */
+#statusbar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background-color: var(--statusbar-bg);
+    border-top: 1px solid var(--statusbar-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    z-index: 20; /* Ensure it's above other elements */
+}
 
-        .select, .position-info { 
-            font-size: 0.875rem; 
-        }
+/* Left side with position info */
+.position-info {
+    display: flex;
+    align-items: center;
+    color: var(--text-color);
+    font-size: 0.875rem;
+    min-width: 0;
+}
 
-        .position-info {
-            color: var(--text-color);
-            display: flex;
-            align-items: center;
-        }
+.position-info span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 15px;
+}
 
-        .position-info span {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 200px;
-            display: inline-block;
-        }
+/* Right side controls */
+.controls {
+    display: flex;
+    height: 100%;
+    align-items: stretch;
+}
 
-        .settings-button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            border-right: 1px solid var(--statusbar-divider);
-            height: 100%;
-            transition: width 0.2s;
-            cursor: pointer;
-        }
+/* Settings button */
+.settings-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    border-right: 1px solid var(--statusbar-divider);
+    height: 100%;
+    transition: width 0.2s;
+    cursor: pointer;
+    width: 42px; /* Default width */
+}
 
-        .settings-button:hover { 
-            background-color: var(--hover-bg); 
-        }
+.settings-button:hover {
+    background-color: var(--hover-bg);
+}
 
-        .settings-button svg {
-            width: 16px;
-            height: 16px;
-            color: var(--text-color);
-        }
+.settings-button svg {
+    width: 16px;
+    height: 16px;
+    color: var(--text-color);
+}
 
-        .controls {
-            display: flex;
-            height: 100%;
-        }
+/* Control Items (Select wrappers and terminal button) */
+.select-wrapper {
+    position: relative;
+    height: 100%;
+    border-left: 1px solid var(--statusbar-divider);
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+}
 
-        .select-wrapper {
-            position: relative;
-            height: 100%;
-            border-left: 1px solid var(--statusbar-divider);
-            display: flex;
-            align-items: center;
-            padding: 0 15px;
-        }
 
-        .select-wrapper::after {
-            content: "";
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 0;
-            height: 0;
-            border-left: 4px solid transparent;
-            border-right: 4px solid transparent;
-            border-top: 4px solid var(--text-color);
-            pointer-events: none;
-        }
+.select-wrapper::after {
+    content: "";
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid var(--text-color);
+    pointer-events: none;
+}
 
-        .select-wrapper select {
-            border: none;
-            background: none;
-            padding-right: 1.5em;
-            cursor: pointer;
-            font-size: 0.875rem;
-            color: var(--text-color);
-            -webkit-appearance: none;
-            appearance: none;
-        }
+.select-wrapper select {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 0.875rem;
+    cursor: pointer;
+    padding-right: 15px;
+    -webkit-appearance: none;
+    appearance: none;
+}
 
-        .select-wrapper select:focus {
-            outline: none;
-        }
+.select-wrapper select:focus {
+    outline: none;
+}
+
+/* Terminal button */
+.terminal-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-left: 1px solid var(--statusbar-divider);
+    cursor: pointer;
+    padding: 0 15px;
+    height: 100%;
+}
+
+.terminal-button:hover {
+    background-color: var(--hover-bg);
+}
+
+.terminal-button svg {
+    width: 16px;
+    height: 16px;
+    color: var(--text-color);
+}
 
         /* Modal */
         .modal-background {
@@ -390,6 +418,60 @@
             from { opacity: 1; }
             to { opacity: 0; }
             }
+
+            .terminal-drawer {
+                position: absolute;
+                bottom: 40px;
+                left: 0;
+                right: 0;
+                background-color: var(--modal-bg);
+                border-top: 1px solid var(--statusbar-border);
+                transform: translateY(100%);
+                transition: transform 0.3s ease;
+                z-index: 10;
+                height: 200px;
+                max-height: calc(50vh - 40px);
+                display: flex;
+                flex-direction: column;
+            }
+
+            .terminal-drawer.is-open {
+                transform: translateY(0);
+            }
+
+            .terminal-content {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.terminal-content .terminal {
+    height: 100% !important;
+    padding: 8px;
+}
+
+/* Ensure the canvas takes full height */
+.terminal-content .terminal > div {
+    height: 100%;
+}
+
+/* Adjust xterm scrollbar for dark mode */
+@media (prefers-color-scheme: dark) {
+    .terminal-content .xterm-viewport::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .terminal-content .xterm-viewport::-webkit-scrollbar-track {
+        background: var(--modal-bg);
+    }
+
+    .terminal-content .xterm-viewport::-webkit-scrollbar-thumb {
+        background: var(--text-color);
+        opacity: 0.5;
+        border-radius: 4px;
+    }
+}
     </style>
 </head>
 <body>
@@ -404,10 +486,17 @@
         </div>
       </div>
     <div id="app">
-        <div id="editor">function helloGrace() {<br>
-    console.log("Hello, Grace!");<br>
-    return "Hello!";<br>
-}</div>
+        <div id="editor"></div>
+        <div id="terminal-drawer" 
+            class="terminal-drawer" 
+            :class="{ 'is-open': isTerminalOpen }" 
+            :style="{ height: `${terminalHeight}px` }">
+            <div class="terminal-handle">
+                <div class="handle-line"></div>
+            </div>
+            <div class="terminal-content">
+            </div>
+        </div>
         <div id="statusbar">
             <div class="position-info">
                 <div class="settings-button" @click="openSettingsModal">
@@ -434,6 +523,9 @@
                         <option value="html">HTML</option>
                         <option value="css">CSS</option>
                     </select>
+                </div>
+                <div class="terminal-button" @click="toggleTerminal">
+                    <i data-lucide="terminal"></i>
                 </div>
             </div>
         </div>
@@ -494,6 +586,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.24.1/ace.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         function hideLoadingScreen() {
@@ -504,7 +597,7 @@
             }, 500);
         }
 
-        const { createApp, onMounted, ref, watch } = Vue;
+        const { createApp, onMounted, ref, watch, nextTick } = Vue;
 
         createApp({
             setup() {
@@ -579,6 +672,135 @@
                     { value: 'tomorrow', label: 'Tomorrow' },
                     { value: 'xcode', label: 'Xcode' }
                 ];
+
+                const isTerminalOpen = ref(false);
+                const terminalHeight = ref(200); // Default height in pixels
+
+                const terminal = ref(null);
+
+                function getThemeColors(editorTheme) {
+                    // Map Ace themes to terminal colors
+                    const isDark = darkThemes.some(theme => theme.value === editorTheme);
+                    
+                    return {
+                        background: isDark ? '#1a1a1a' : '#ffffff',
+                        foreground: isDark ? '#f0f0f0' : '#000000',
+                        cursor: isDark ? '#f0f0f0' : '#000000',
+                        selection: isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)',
+                        black: isDark ? '#000000' : '#000000',
+                        red: '#ff5555',
+                        green: '#50fa7b',
+                        yellow: '#f1fa8c',
+                        blue: '#bd93f9',
+                        magenta: '#ff79c6',
+                        cyan: '#8be9fd',
+                        white: isDark ? '#f8f8f2' : '#ffffff',
+                        brightBlack: '#6272a4',
+                        brightRed: '#ff6e6e',
+                        brightGreen: '#69ff94',
+                        brightYellow: '#ffffa5',
+                        brightBlue: '#d6acff',
+                        brightMagenta: '#ff92df',
+                        brightCyan: '#a4ffff',
+                        brightWhite: isDark ? '#ffffff' : '#000000'
+                    };
+                }
+
+                function initializeTerminal() {
+                    const colors = getThemeColors(theme.value);
+                    
+                    terminal.value = new Terminal({
+                        cursorBlink: true,
+                        fontSize: 14,
+                        fontFamily: 'Monaco, Menlo, Consolas, monospace',
+                        theme: colors,
+                        convertEol: true,
+                        scrollback: 1000,
+                        disableStdin: false,
+                        cursorStyle: 'block',
+                        allowTransparency: true
+                    });
+
+                    terminal.value.open(document.querySelector('.terminal-content'));
+                    
+                    // Initialize with prompt
+                    terminal.value.write('\r\n$ ');
+
+                    let currentLine = '';
+                    let cursorPosition = 0;
+
+                    terminal.value.onKey(({ key, domEvent }) => {
+                        const printable = !domEvent.altKey && !domEvent.altGraphKey && !domEvent.ctrlKey && !domEvent.metaKey;
+
+                        if (domEvent.keyCode === 13) { // Enter
+                            terminal.value.write('\r\n$ ');
+                            currentLine = '';
+                            cursorPosition = 0;
+                        } else if (domEvent.keyCode === 8) { // Backspace
+                            if (currentLine.length > 0 && cursorPosition > 0) {
+                                currentLine = currentLine.slice(0, -1);
+                                cursorPosition--;
+                                terminal.value.write('\b \b');
+                            }
+                        } else if (printable) {
+                            currentLine += key;
+                            cursorPosition++;
+                            terminal.value.write(key);
+                        }
+                    });
+                }
+
+                function toggleTerminal() {
+                    isTerminalOpen.value = !isTerminalOpen.value;
+                    
+                    // Initialize terminal if it's being opened for the first time
+                    if (isTerminalOpen.value && !terminal.value) {
+                        nextTick(() => {
+                            initializeTerminal();
+                        });
+                    }
+                    
+                    // Fit terminal to container when opened
+                    if (isTerminalOpen.value && terminal.value) {
+                        nextTick(() => {
+                            terminal.value.fit();
+                        });
+                    }
+                }
+
+                function handleTerminalResize() {
+                    if (terminal.value) {
+                        terminal.value.fit();
+                    }
+                }
+
+                function initializeTerminalResize() {
+                    const drawer = document.querySelector('.terminal-drawer');
+                    const handle = document.querySelector('.terminal-handle');
+                    let startY, startHeight;
+
+                    handle.addEventListener('mousedown', (e) => {
+                        startY = e.clientY;
+                        startHeight = parseInt(getComputedStyle(drawer).height);
+                        document.addEventListener('mousemove', handleMouseMove);
+                        document.addEventListener('mouseup', handleMouseUp);
+                    });
+
+                    function handleMouseMove(e) {
+                        const delta = startY - e.clientY;
+                        const newHeight = Math.min(
+                            Math.max(100, startHeight + delta), // Min height of 100px
+                            window.innerHeight * 0.5 - 40 // Max 50% of viewport minus statusbar
+                        );
+                        drawer.style.height = `${newHeight}px`;
+                        terminalHeight.value = newHeight;
+                    }
+
+                    function handleMouseUp() {
+                        document.removeEventListener('mousemove', handleMouseMove);
+                        document.removeEventListener('mouseup', handleMouseUp);
+                    }
+                }
 
                 async function detectMonospaceFonts() {
                     // Only the fonts from your Font Book listing
@@ -655,11 +877,6 @@
                     editor.moveCursorToPosition(cursorPosition);
                 }
 
-                function updateEditorTheme(editor, newTheme) {
-                    editor.setTheme(`ace/theme/${newTheme}`);
-                    editor.renderer.updateFull(true); // Force full refresh
-                }
-
                 onMounted(async () => {
                     editor.value = ace.edit("editor");
                     editor.value.setTheme("ace/theme/monokai");
@@ -682,6 +899,11 @@
                     editor.value.renderer.on('resize', updateSettingsButtonWidth);
                     editor.value.session.on('changeScrollTop', updateSettingsButtonWidth);
 
+                    editor.value.setValue(`function helloGrace() {
+    console.log("Hello, Grace!");
+    return "Hello!";
+}`, -1);  // The -1 moves cursor to start
+
                     try {
                         availableFonts.value = await detectMonospaceFonts();
                         if (availableFonts.value.length === 0) {
@@ -690,6 +912,19 @@
                     } catch (e) {
                         console.error('Error detecting fonts:', e);
                         availableFonts.value = ['monospace'];
+                    }
+
+                    initializeTerminalResize();
+
+                    const resizeObserver = new ResizeObserver(() => {
+                        if (isTerminalOpen.value) {
+                            handleTerminalResize();
+                        }
+                    });
+                    
+                    const terminalContent = document.querySelector('.terminal-content');
+                    if (terminalContent) {
+                        resizeObserver.observe(terminalContent);
                     }
 
                     setTimeout(() => {
@@ -703,7 +938,6 @@
                             const prevIndentSize = oldValues?.[2];
                             const prevIndentType = oldValues?.[3];
                             
-                            // Handle theme change
                             if (oldValues?.[1] !== newTheme) {
                                 editor.value.setTheme(`ace/theme/${newTheme}`);
                                 
@@ -719,7 +953,11 @@
                                 // Force a redraw
                                 editor.value.renderer.updateFull(true);
                                 requestAnimationFrame(() => {
-                                    editor.value.renderer.updateFull(true);
+                                    const textArea = editor.value.container.querySelector('textarea');
+                                    if (textArea) {
+                                        textArea.focus();
+                                        editor.value.renderer.updateFull(true);
+                                    }
                                 });
                             }
                             
@@ -776,6 +1014,13 @@
                     }, { deep: true }
                 );
 
+                watch([theme], ([newTheme]) => {
+                    if (terminal.value) {
+                        const colors = getThemeColors(newTheme);
+                        terminal.value.setOption('theme', colors);
+                    }
+                });
+
                 return {
                     cursor,
                     isSettingsModalOpen,
@@ -791,7 +1036,10 @@
                     wordWrap,
                     openSettingsModal,
                     closeSettingsModal,
-                    restoreDefaults
+                    restoreDefaults,
+                    isTerminalOpen,
+                    terminalHeight,
+                    toggleTerminal
                 };
             }
         }).mount('#app');
