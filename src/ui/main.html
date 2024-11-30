@@ -2,10 +2,7 @@
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.24.1/ace.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css" media="print" onload="this.media='all'">
     <style>
         /* Variables */
         :root {
@@ -17,6 +14,8 @@
             --statusbar-bg: #f5f5f5;
             --statusbar-border: #ddd;
             --statusbar-divider: #ddd;
+            --spinner-track: #f3f3f3;
+            --spinner-active: #41B883;
         }
 
         @media (prefers-color-scheme: dark) {
@@ -35,6 +34,8 @@
                 --label-text: #bbb;
                 --checkbox-text: #ddd;
                 --slider-text: #ddd;
+                --spinner-track: #2C2C2C;
+                --spinner-active: #41B883;
             }
         }
 
@@ -337,9 +338,71 @@
             border-width: 0 2px 2px 0;
             transform: rotate(45deg);
         }
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--modal-bg);
+            z-index: 9999;
+            transition: background-color 0.3s ease;
+            }
+
+            .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--spinner-track);
+            border-top: 5px solid var(--spinner-active);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+            }
+
+            .loading-text {
+            margin-top: 20px;
+            color: var(--text-color);
+            font-size: 16px;
+            transition: color 0.3s ease;
+            }
+
+            /* Dark mode overrides for Bulma */
+            @media (prefers-color-scheme: dark) {
+            .hero.is-fullheight {
+                background-color: var(--modal-bg);
+            }
+            
+            .hero-body {
+                background-color: var(--modal-bg);
+            }
+            }
+
+            @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+            }
+
+            .fade-out {
+            animation: fadeOut 0.5s ease-in-out forwards;
+            }
+
+            @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+            }
     </style>
 </head>
 <body>
+    <div id="loading-screen" class="loading-container">
+        <div class="hero is-fullheight">
+          <div class="hero-body">
+            <div class="container has-text-centered">
+              <div class="spinner"></div>
+              <div class="loading-text">Loading...</div>
+            </div>
+          </div>
+        </div>
+      </div>
     <div id="app">
         <div id="editor">function helloGrace() {<br>
     console.log("Hello, Grace!");<br>
@@ -425,17 +488,22 @@
                         Restore Defaults
                     </button>
                 </footer>
-                <!-- <footer class="modal-card-foot" style="justify-content: center; background: white; border-top: 1px solid #eee">
-                    <button class="button is-small is-light" @click="restoreDefaults" style="color: #666">
-                        <i data-lucide="rotate-ccw" class="icon is-small mr-1"></i>
-                        Restore Defaults
-                    </button>
-                </footer> -->
             </div>
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.24.1/ace.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script>
+        function hideLoadingScreen() {
+            const loadingScreen = document.getElementById('loading-screen');
+            loadingScreen.classList.add('fade-out');
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+            }, 500);
+        }
+
         const { createApp, onMounted, ref, watch } = Vue;
 
         createApp({
@@ -559,6 +627,39 @@
                     wordWrap.value = defaultSettings.wordWrap;
                 }
 
+                function reformatIndentation(editor, size, type) {
+                    const session = editor.session;
+                    const lines = session.doc.getAllLines();
+                    const useSpaces = type === 'spaces';
+                    
+                    // Store cursor position
+                    const cursorPosition = editor.getCursorPosition();
+                    
+                    lines.forEach((line, index) => {
+                        // Count leading whitespace
+                        const match = line.match(/^\s*/);
+                        if (match) {
+                            const indentLevel = match[0].length / session.getTabSize();
+                            const newIndent = useSpaces ? 
+                                ' '.repeat(Math.floor(indentLevel) * size) : 
+                                '\t'.repeat(Math.floor(indentLevel));
+                            
+                            // Replace the line's indentation
+                            const newLine = newIndent + line.trimLeft();
+                            session.doc.removeFullLines(index, index);
+                            session.doc.insertFullLines(index, [newLine]);
+                        }
+                    });
+                    
+                    // Restore cursor position
+                    editor.moveCursorToPosition(cursorPosition);
+                }
+
+                function updateEditorTheme(editor, newTheme) {
+                    editor.setTheme(`ace/theme/${newTheme}`);
+                    editor.renderer.updateFull(true); // Force full refresh
+                }
+
                 onMounted(async () => {
                     editor.value = ace.edit("editor");
                     editor.value.setTheme("ace/theme/monokai");
@@ -590,20 +691,89 @@
                         console.error('Error detecting fonts:', e);
                         availableFonts.value = ['monospace'];
                     }
+
+                    setTimeout(() => {
+                        hideLoadingScreen();
+                    }, 100);
                 });
 
                 watch([syntax, theme, indentSize, indentType, fontSize, selectedFont, wordWrap], 
-                    ([newSyntax, newTheme, newIndentSize, newIndentType, newFontSize, newFont, newWordWrap]) => {
+                    ([newSyntax, newTheme, newIndentSize, newIndentType, newFontSize, newFont, newWordWrap], oldValues) => {
                         if (editor.value) {
+                            const prevIndentSize = oldValues?.[2];
+                            const prevIndentType = oldValues?.[3];
+                            
+                            // Handle theme change
+                            if (oldValues?.[1] !== newTheme) {
+                                editor.value.setTheme(`ace/theme/${newTheme}`);
+                                
+                                // Force theme update by directly manipulating classes
+                                const editorElement = editor.value.container;
+                                const oldThemeClass = Array.from(editorElement.classList)
+                                    .find(className => className.startsWith('ace-'));
+                                if (oldThemeClass) {
+                                    editorElement.classList.remove(oldThemeClass);
+                                }
+                                editorElement.classList.add(`ace-${newTheme}`);
+                                
+                                // Force a redraw
+                                editor.value.renderer.updateFull(true);
+                                requestAnimationFrame(() => {
+                                    editor.value.renderer.updateFull(true);
+                                });
+                            }
+                            
                             editor.value.session.setMode(`ace/mode/${newSyntax}`);
-                            editor.value.setTheme(`ace/theme/${newTheme}`);
-                            editor.value.session.setTabSize(newIndentSize);
-                            editor.value.session.setUseSoftTabs(newIndentType === 'spaces');
+                            
+                            // Handle indentation change
+                            if (prevIndentSize !== newIndentSize || prevIndentType !== newIndentType) {
+                                const session = editor.value.session;
+                                
+                                // First, set the new tab size
+                                session.setTabSize(newIndentSize);
+                                session.setUseSoftTabs(newIndentType === 'spaces');
+                                
+                                // Then, reindent the entire document
+                                const lines = session.doc.getAllLines();
+                                let cursorPos = editor.value.getCursorPosition();
+                                
+                                lines.forEach((line, index) => {
+                                    if (line.trim().length > 0) { // Only process non-empty lines
+                                        // First convert all indentation to spaces
+                                        let spaceLine = session.doc.$lines[index];
+                                        // Calculate the actual indentation level (how many levels deep)
+                                        let indentLevel = 0;
+                                        for (let i = 0; i < spaceLine.length; i++) {
+                                            if (spaceLine[i] === ' ') indentLevel++;
+                                            else if (spaceLine[i] === '\t') indentLevel += prevIndentSize || 4;
+                                            else break;
+                                        }
+                                        indentLevel = Math.floor(indentLevel / (prevIndentSize || 4));
+                                        
+                                        // Create new indentation
+                                        let newIndent;
+                                        if (newIndentType === 'spaces') {
+                                            newIndent = ' '.repeat(indentLevel * newIndentSize);
+                                        } else {
+                                            newIndent = '\t'.repeat(indentLevel);
+                                        }
+                                        
+                                        // Replace the line
+                                        let newLine = newIndent + line.trimLeft();
+                                        session.doc.removeFullLines(index, index);
+                                        session.doc.insertFullLines(index, [newLine]);
+                                    }
+                                });
+                                
+                                // Restore cursor position
+                                editor.value.moveCursorToPosition(cursorPos);
+                            }
+                            
                             editor.value.setFontSize(parseInt(newFontSize));
                             editor.value.container.style.fontFamily = newFont;
                             editor.value.session.setUseWrapMode(newWordWrap);
                         }
-                    }
+                    }, { deep: true }
                 );
 
                 return {
