@@ -76,6 +76,7 @@
     color: var(--text-color);
     font-size: 0.875rem;
     min-width: 0;
+    cursor: default;
 }
 
 .position-info span {
@@ -891,9 +892,13 @@
                         const printable = !domEvent.altKey && !domEvent.altGraphKey && !domEvent.ctrlKey && !domEvent.metaKey;
 
                         if (domEvent.keyCode === 13) { // Enter
-                            terminal.value.write('\r\n$ ');
-                            currentLine = '';
-                            cursorPosition = 0;
+                            arturo.exec(currentLine).then((res) => {
+                                terminal.value.write("\r\n" + res + "\r\n");
+                                terminal.value.write('\r\n$ ');
+                                currentLine = '';
+                                cursorPosition = 0;
+                            });
+                            
                         } else if (domEvent.keyCode === 8) { // Backspace
                             if (currentLine.length > 0 && cursorPosition > 0) {
                                 currentLine = currentLine.slice(0, -1);
