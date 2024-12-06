@@ -47,6 +47,10 @@ export module [
                         m: mimetype.best "json"
                         c: write.json # ./location null
                     ]
+                    [suffix? location ".art"][
+                        m: mimetype.best "json"
+                        c: write.json @ to :block read ./location null
+                    ]
                     true [
                         c: read ./location
                     ]
