@@ -613,6 +613,18 @@
             }, 500);
         }
 
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
         const { createApp, onMounted, ref, watch, nextTick } = Vue;
 
         createApp({
@@ -801,12 +813,12 @@
                     }
                 }
 
-                function handleTerminalResize() {
+                const handleTerminalResize = debounce(() => {
                     if (terminal.value) {
                         terminal.value.fit();
                         terminal.value.scrollToBottom();
                     }
-                }
+                }, 50);  // 50ms debounce
 
                 function initializeTerminalResize() {
                     const drawer = document.querySelector('.terminal-drawer');
@@ -838,13 +850,13 @@
 
                 async function detectMonospaceFonts() {
                     // Only the fonts from your Font Book listing
-                    const allFonts = [
-                        'Andale Mono', 'Courier New', 'Inconsolata', 'Menlo', 'Monaco', 
-                        'Osaka Mono', 'PT Mono', 'SF Mono', 'Spot Mono', 'Lantinghei',
-                        'PCMyongjo', 'DejaVu Sans Mono', 'Liberation Mono', 'Lucida Console',
-                        'Fira Code', 'JetBrains Mono', 'Source Code Pro', 'Ubuntu Mono',
-                        'Consolas', 'Roboto Mono', 'IBM Plex Mono', 'Anonymous Pro'
-                    ];
+                    var allFonts = [];
+                    try {
+                        const response = await fetch('data/fonts.art');
+                        allFonts = await response.json();
+                    } catch (error) {
+                        console.log(error);
+                    }
                     
                     const fonts = await Promise.all(
                         allFonts.map(async font => {
@@ -971,11 +983,11 @@
 
                     initializeTerminalResize();
 
-                    const resizeObserver = new ResizeObserver(() => {
+                    const resizeObserver = new ResizeObserver(debounce(() => {
                         if (isTerminalOpen.value) {
                             handleTerminalResize();
                         }
-                    });
+                    }, 50));
                     
                     const terminalContent = document.querySelector('.terminal-content');
                     if (terminalContent) {
