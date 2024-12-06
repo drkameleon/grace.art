@@ -17,10 +17,10 @@ export module [
 
     uiapp: function [body][
         ws: ./ "web_server"
-        write ws {
+        write {
             import 'mimetypes!
             serve.port:18966
-        } ++ as.code body
+        } ++ as.code body ws
 
         pid: execute.async.args:@[ws] sys\binary
         webview.debug.title: "Grace — Untitled.js" {http://localhost:18966}
@@ -39,8 +39,35 @@ export module [
             ]
             
             GET "/(?<location>.+)" $[location][
-                emit.as: mimetype.best location
-                    read ./ location
+                m: mimetype.best location
+                c: null
+
+                when [
+                    [suffix? location "d.art"][
+                        m: mimetype.best "json"
+                        c: write.json # ./location null
+                    ]
+                    true [
+                        c: read ./location
+                    ]
+                ]
+
+                emit.as: m c
+                ; m: mimetype.best location
+                ; c: null
+                ; print "AQUI"
+                ; when [
+                ;     ; [suffix? location "d.art"][
+                ;     ;     m: mimetype "json"
+                ;     ;     c: write.json # to :block read ./location null
+                ;     ; ]
+                ;     true [
+                ;         print "HERE"
+                ;         m: mimetype.best location
+                ;         c: read ./location
+                ;     ]
+                ; ]
+                ; emit.as: m c
             ]
         ]
     ]
