@@ -10,6 +10,20 @@
 ; @file src/grace.art
 ;===============================================
 
+openFile: function [][
+    filepath: dialog "choose a file"
+    eval render {
+        window.V.openFile(`| filepath |`,`| read filepath |`);
+    }
+    true
+]
+
+doSth: function [n][
+    print ["we are doing something with:" n]
+    "yep!"
+    eval {console.log("we actually managed to execute something ON the webview!");}
+]
+
 export module [
     ;---------------------------
     ; Private methods

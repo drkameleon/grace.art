@@ -299,9 +299,22 @@
             border: 1px solid var(--statusbar-divider);
             border-radius: 4px;
             height: 8px;
-            width: 140px; /* Adjust width to match dropdowns */
+            width: 140px;
         }
 
+        /* Hover state */
+        .font-size-control input[type="range"]:hover {
+            border-color: #4a9eff;
+        }
+
+        /* Focus state */
+        .font-size-control input[type="range"]:focus {
+            outline: none;
+            border-color: #4a9eff;
+            box-shadow: 0 0 0 1px #4a9eff;
+        }
+
+        /* Thumb styling */
         .font-size-control input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             width: 16px;
@@ -310,11 +323,12 @@
             background: #4a9eff;
             cursor: pointer;
             border: none;
+            transition: transform 0.1s ease;
         }
 
-        .font-size-control input[type="range"]:focus {
-            border-color: #4a9eff;
-            box-shadow: 0 0 0 1px #4a9eff;
+        /* Thumb hover effect */
+        .font-size-control input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
         }
 
         .font-size-control span {
@@ -349,6 +363,18 @@
             cursor: pointer;
             position: relative;
             margin-right: 8px;
+        }
+
+        /* Add hover styles to match select dropdowns */
+        .word-wrap-toggle input[type="checkbox"]:hover {
+            border-color: #4a9eff;
+        }
+
+        /* Add focus styles to match select dropdowns */
+        .word-wrap-toggle input[type="checkbox"]:focus {
+            outline: none;
+            border-color: #4a9eff;
+            box-shadow: 0 0 0 1px #4a9eff;
         }
 
         .word-wrap-toggle input[type="checkbox"]:checked {
@@ -922,6 +948,18 @@
                     // Restore cursor position
                     editor.moveCursorToPosition(cursorPosition);
                 }
+
+                // Define the function inside Vue
+                const openFile = (fname, fcontent) => {
+                    if (editor.value) {
+                        editor.value.setValue(fcontent);
+                        editor.value.clearSelection();
+                    }
+                };
+
+                // Expose it globally
+                window.V = window.V || {};
+                window.V.openFile = openFile;
 
                 onMounted(async () => {
                     try {
