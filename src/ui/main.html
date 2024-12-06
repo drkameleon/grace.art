@@ -559,13 +559,19 @@
                         <label>Theme</label>
                         <select v-model="theme">
                             <optgroup label="Dark Themes">
-                                <option v-for="theme in darkThemes" :value="theme.value">
-                                    {{ theme.label }}
+                                <option 
+                                    v-for="[value, label] in Object.entries(darkThemes).sort((a, b) => a[1].localeCompare(b[1]))" 
+                                    :key="value"
+                                    :value="value">
+                                        {{ label }}
                                 </option>
                             </optgroup>
                             <optgroup label="Light Themes">
-                                <option v-for="theme in lightThemes" :value="theme.value">
-                                    {{ theme.label }}
+                                <option 
+                                    v-for="[value, label] in Object.entries(lightThemes).sort((a, b) => a[1].localeCompare(b[1]))" 
+                                    :key="value"
+                                    :value="value">
+                                        {{ label }}
                                 </option>
                             </optgroup>
                         </select>
@@ -626,58 +632,8 @@
                     wordWrap: false
                 };
 
-                const darkThemes = [
-                    { value: 'ambiance', label: 'Ambiance' },
-                    { value: 'chaos', label: 'Chaos' },
-                    { value: 'cloud_editor_dark', label: 'Cloud Editor (Dark)' },
-                    { value: 'cloud9_night', label: 'Cloud9 (Night)' },
-                    { value: 'cloud9_night_low_color', label: 'Cloud9 (Night / Low Color)' },
-                    { value: 'clouds_midnight', label: 'Clouds (Midnight)' },
-                    { value: 'cobalt', label: 'Cobalt' },
-                    { value: 'dracula', label: 'Dracula' },
-                    { value: 'github_dark', label: 'GitHub (Dark)' },
-                    { value: 'gob', label: 'Gob' },
-                    { value: 'gruvbox_dark_hard', label: 'Gruvbox (Dark Hard)' },
-                    { value: 'idle_fingers', label: 'Idle Fingers' },
-                    { value: 'merbivore', label: 'Merbivore' },
-                    { value: 'merbivore_soft', label: 'Merbivore (Soft)' },
-                    { value: 'mono_industrial', label: 'Mono Industrial' },
-                    { value: 'monokai', label: 'Monokai' },
-                    { value: 'nord_dark', label: 'Nord Dark' },
-                    { value: 'one_dark', label: 'One Dark' },
-                    { value: 'pastel_on_dark', label: 'Pastel on Dark' },
-                    { value: 'solarized_dark', label: 'Solarized (Dark)' },
-                    { value: 'terminal', label: 'Terminal' },
-                    { value: 'tomorrow_night', label: 'Tomorrow Night' },
-                    { value: 'tomorrow_night_blue', label: 'Tomorrow Night (Blue)' },
-                    { value: 'tomorrow_night_bright', label: 'Tomorrow Night (Bright)' },
-                    { value: 'tomorrow_night_eighties', label: 'Tomorrow Night (Eighties)' },
-                    { value: 'twilight', label: 'Twilight' },
-                    { value: 'vibrant_ink', label: 'Vibrant Ink' }
-                ];
-
-                const lightThemes = [
-                    { value: 'chrome', label: 'Chrome' },
-                    { value: 'cloud_editor', label: 'Cloud Editor' },
-                    { value: 'cloud9_day', label: 'Cloud9 (Day)' },
-                    { value: 'clouds', label: 'Clouds' },
-                    { value: 'crimson_editor', label: 'Crimson Editor' },
-                    { value: 'dawn', label: 'Dawn' },
-                    { value: 'dreamweaver', label: 'Dreamweaver' },
-                    { value: 'eclipse', label: 'Eclipse' },
-                    { value: 'github', label: 'GitHub' },
-                    { value: 'github_light_default', label: 'GitHub (Light Default)' },
-                    { value: 'gruvbox_light_hard', label: 'Gruvbox (Light Hard)' },
-                    { value: 'iplastic', label: 'IPlastic' },
-                    { value: 'katzenmilch', label: 'Katzenmilch' },
-                    { value: 'kr_theme', label: 'KR Theme' },
-                    { value: 'kuroir', label: 'Kuroir' },
-                    { value: 'solarized_light', label: 'Solarized (Light)' },
-                    { value: 'sqlserver', label: 'SQL Server' },
-                    { value: 'textmate', label: 'TextMate' },
-                    { value: 'tomorrow', label: 'Tomorrow' },
-                    { value: 'xcode', label: 'Xcode' }
-                ];
+                const darkThemes = ref({});
+                const lightThemes = ref({});
 
                 const isTerminalOpen = ref(false);
                 const terminalHeight = ref(200); // Default height in pixels
@@ -891,6 +847,20 @@
                     try {
                         const response = await fetch('data/syntaxes.d.art');
                         syntaxes.value = await response.json();
+                    } catch (error) {
+                        console.log(error);
+                    }
+
+                    try {
+                        const response = await fetch('data/themes.dark.d.art');
+                        darkThemes.value = await response.json();
+                    } catch (error) {
+                        console.log(error);
+                    }
+
+                    try {
+                        const response = await fetch('data/themes.light.d.art');
+                        lightThemes.value = await response.json();
                     } catch (error) {
                         console.log(error);
                     }
