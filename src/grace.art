@@ -57,21 +57,6 @@ export module [
                 ]
 
                 emit.as: m c
-                ; m: mimetype.best location
-                ; c: null
-                ; print "AQUI"
-                ; when [
-                ;     ; [suffix? location "d.art"][
-                ;     ;     m: mimetype "json"
-                ;     ;     c: write.json # to :block read ./location null
-                ;     ; ]
-                ;     true [
-                ;         print "HERE"
-                ;         m: mimetype.best location
-                ;         c: read ./location
-                ;     ]
-                ; ]
-                ; emit.as: m c
             ]
         ]
     ]
