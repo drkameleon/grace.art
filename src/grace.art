@@ -10,12 +10,25 @@
 ; @file src/grace.art
 ;===============================================
 
+extensions: # ./"data/extensions.d.art"
+
+getIdealSyntax: function [fpath][
+    ext: replace extract.extension fpath "." ""
+    (key? extensions ext)? -> return extensions\[ext]
+                           -> return "text"
+]
+
 openFile: function [][
     filepath: dialog "choose a file"
-    eval render {
-        window.V.openFile(`| filepath |`,`| read filepath |`);
-    }
-    true
+    not? throws? [
+        eval render.template {
+            window.V.openFile(
+                `<||= filepath ||>`,
+                `<||= read filepath ||>`, 
+                `<||= getIdealSyntax filepath ||>`
+            );
+        }
+    ]
 ]
 
 doSth: function [n][
