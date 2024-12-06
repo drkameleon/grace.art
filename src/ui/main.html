@@ -397,27 +397,27 @@
 
             /* Dark mode overrides for Bulma */
             @media (prefers-color-scheme: dark) {
-            .hero.is-fullheight {
-                background-color: var(--modal-bg);
-            }
-            
-            .hero-body {
-                background-color: var(--modal-bg);
-            }
+                .hero.is-fullheight {
+                    background-color: var(--modal-bg);
+                }
+                
+                .hero-body {
+                    background-color: var(--modal-bg);
+                }
             }
 
             @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
             }
 
             .fade-out {
-            animation: fadeOut 0.5s ease-in-out forwards;
+                animation: fadeOut 0.5s ease-in-out forwards;
             }
 
             @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
+                from { opacity: 1; }
+                to { opacity: 0; }
             }
 
             .terminal-drawer {
@@ -642,7 +642,7 @@
 
                 function getThemeColors(editorTheme) {
                     // Map Ace themes to terminal colors
-                    const isDark = darkThemes.some(theme => theme.value === editorTheme);
+                    const isDark = Object.keys(darkThemes.value).includes(editorTheme);
                     
                     return {
                         background: isDark ? '#1a1a1a' : '#ffffff',
