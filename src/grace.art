@@ -43,13 +43,11 @@ export module [
                 c: null
 
                 when [
-                    [suffix? location "d.art"][
-                        m: mimetype.best "json"
-                        c: write.json # ./location null
-                    ]
                     [suffix? location ".art"][
                         m: mimetype.best "json"
-                        c: write.json @ to :block read ./location null
+                        parsed: (suffix? location ".d.art")? -> # ./location
+                                                             -> @ to :block read ./location
+                        c: write.json parsed null
                     ]
                     true [
                         c: read ./location
