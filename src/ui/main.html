@@ -457,6 +457,11 @@
             height: 100%;
         }
 
+        .terminal-content .xterm-viewport {
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+        }
+
         /* Adjust xterm scrollbar for dark mode */
         @media (prefers-color-scheme: dark) {
             .terminal-content .xterm-viewport::-webkit-scrollbar {
@@ -597,6 +602,7 @@
     <script src="lib/arturo/arturo.js"></script>
     <script src="lib/vue/vue.global.prod.min.js"></script>
     <script src="lib/xterm/xterm.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/addons/fit/fit.js"></script>
     <script src="lib/lucide/lucide.js"></script>
     <script>
         function hideLoadingScreen() {
@@ -671,19 +677,30 @@
                 function initializeTerminal() {
                     const colors = getThemeColors(theme.value);
                     
+                    // Add command history array and index
+                    const commandHistory = [];
+                    let historyIndex = -1;
+                    let currentInput = '';
+
                     terminal.value = new Terminal({
                         cursorBlink: true,
                         fontSize: 14,
                         fontFamily: 'Monaco, Menlo, Consolas, monospace',
                         theme: colors,
                         convertEol: true,
-                        scrollback: 1000,
+                        scrollback: 5000,
                         disableStdin: false,
                         cursorStyle: 'block',
-                        allowTransparency: true
+                        allowTransparency: true,
+                        rows: 20,
+                        copyOnSelect: true    // Enable copy on selection
                     });
 
+                    // Initialize fit addon
+                    window.Terminal.applyAddon(window.fit);
+                    
                     terminal.value.open(document.querySelector('.terminal-content'));
+                    terminal.value.fit();
                     
                     // Initialize with prompt
                     terminal.value.write('\r\n$ ');
@@ -691,10 +708,22 @@
                     let currentLine = '';
                     let cursorPosition = 0;
 
+                    // Helper to clear current line and rewrite
+                    function rewriteLine(newLine) {
+                        terminal.value.write('\x1b[2K\r$ ' + newLine);
+                        currentLine = newLine;
+                        cursorPosition = newLine.length;
+                    }
+
                     terminal.value.onKey(({ key, domEvent }) => {
                         const printable = !domEvent.altKey && !domEvent.altGraphKey && !domEvent.ctrlKey && !domEvent.metaKey;
-
+                        
                         if (domEvent.keyCode === 13) { // Enter
+                            if (currentLine.trim() !== '') {
+                                commandHistory.push(currentLine);  // Add to history
+                                historyIndex = commandHistory.length;  // Reset history index
+                            }
+                            
                             arturo.exec(currentLine).then((res) => {
                                 terminal.value.write("\r\n" + res + "\r\n");
                                 terminal.value.write('\r\n$ ');
@@ -708,10 +737,48 @@
                                 cursorPosition--;
                                 terminal.value.write('\b \b');
                             }
+                        } else if (domEvent.keyCode === 38) { // Up arrow
+                            if (historyIndex > 0) {
+                                historyIndex--;
+                                rewriteLine(commandHistory[historyIndex]);
+                            }
+                        } else if (domEvent.keyCode === 40) { // Down arrow
+                            if (historyIndex < commandHistory.length - 1) {
+                                historyIndex++;
+                                rewriteLine(commandHistory[historyIndex]);
+                            } else {
+                                historyIndex = commandHistory.length;
+                                rewriteLine('');
+                            }
+                        } else if (domEvent.ctrlKey && domEvent.key === 'c') { // Ctrl+C
+                            // If there's selected text, the browser will handle the copy
+                            // If not, we can add our own behavior here
+                            if (!terminal.value.hasSelection()) {
+                                terminal.value.write('^C\r\n$ ');
+                                currentLine = '';
+                                cursorPosition = 0;
+                            }
+                        } else if (domEvent.ctrlKey && domEvent.key === 'v') { // Ctrl+V
+                            // Read from clipboard and write to terminal
+                            navigator.clipboard.readText().then(text => {
+                                currentLine += text;
+                                cursorPosition += text.length;
+                                terminal.value.write(text);
+                            }).catch(err => {
+                                console.warn('Failed to read clipboard:', err);
+                            });
                         } else if (printable) {
                             currentLine += key;
                             cursorPosition++;
                             terminal.value.write(key);
+                        }
+                    });
+
+                    // Add selection changed handler for copy feedback (optional)
+                    terminal.value.onSelectionChange(() => {
+                        if (terminal.value.hasSelection()) {
+                            // You could add visual feedback here if desired
+                            console.log('Text selected');
                         }
                     });
                 }
@@ -729,7 +796,7 @@
                     // Fit terminal to container when opened
                     if (isTerminalOpen.value && terminal.value) {
                         nextTick(() => {
-                            terminal.value.fit();
+                            //terminal.value.fit();
                         });
                     }
                 }
@@ -737,6 +804,7 @@
                 function handleTerminalResize() {
                     if (terminal.value) {
                         terminal.value.fit();
+                        terminal.value.scrollToBottom();
                     }
                 }
 
