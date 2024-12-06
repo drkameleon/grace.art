@@ -950,10 +950,11 @@
                 }
 
                 // Define the function inside Vue
-                const openFile = (fname, fcontent) => {
+                const openFile = (fname, fcontent, fsyntax) => {
                     if (editor.value) {
                         editor.value.setValue(fcontent);
                         editor.value.clearSelection();
+                        syntax.value = fsyntax;
                     }
                 };
 
