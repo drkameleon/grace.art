@@ -763,7 +763,10 @@
                             }
                             
                             arturo.exec(currentLine).then((res) => {
-                                terminal.value.write("\r\n" + res + "\r\n");
+                                console.log(res)
+                                if (res !== null) {
+                                    terminal.value.write("\r\n" + res + "\r\n");
+                                }
                                 terminal.value.write('\r\n$ ');
                                 currentLine = '';
                                 cursorPosition = 0;
