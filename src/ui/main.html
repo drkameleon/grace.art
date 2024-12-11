@@ -741,7 +741,7 @@
                     terminal.value.fit();
                     
                     // Initialize with prompt
-                    terminal.value.write('\r\n$ ');
+                    terminal.value.write('\r\n$> ');
 
                     let currentLine = '';
                     let cursorPosition = 0;
@@ -764,9 +764,9 @@
                             
                             arturo.exec(currentLine).then((res) => {
                                 if (res !== null) {
-                                    terminal.value.write("\r\n" + res + "\r\n");
+                                    terminal.value.write("\r\n" + res);
                                 }
-                                terminal.value.write('\r\n$ ');
+                                terminal.value.write('\r\n\r\n$> ');
                                 currentLine = '';
                                 cursorPosition = 0;
                             });
