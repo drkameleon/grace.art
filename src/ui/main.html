@@ -714,8 +714,9 @@
 
                 function initializeTerminal() {
                     const colors = getThemeColors(theme.value);
+                    const PROMPT = '$> ';
+                    const PROMPT_LENGTH = PROMPT.length;
                     
-                    // Add command history array and index
                     const commandHistory = [];
                     let historyIndex = -1;
                     let currentInput = '';
@@ -731,26 +732,29 @@
                         cursorStyle: 'block',
                         allowTransparency: true,
                         rows: 20,
-                        copyOnSelect: true    // Enable copy on selection
+                        copyOnSelect: true
                     });
 
-                    // Initialize fit addon
                     window.Terminal.applyAddon(window.fit);
                     
                     terminal.value.open(document.querySelector('.terminal-content'));
                     terminal.value.fit();
                     
-                    // Initialize with prompt
-                    terminal.value.write('\r\n$> ');
+                    terminal.value.write('\r\n' + PROMPT);
 
                     let currentLine = '';
                     let cursorPosition = 0;
 
                     // Helper to clear current line and rewrite
-                    function rewriteLine(newLine) {
-                        terminal.value.write('\x1b[2K\r$> ' + newLine);
+                    function rewriteLine(newLine, newCursorPosition = null) {
+                        terminal.value.write('\x1b[2K\r' + PROMPT + newLine);
                         currentLine = newLine;
-                        cursorPosition = newLine.length;
+                        cursorPosition = newCursorPosition !== null ? newCursorPosition : newLine.length;
+                        
+                        // Move cursor to correct position if it's not at the end
+                        if (cursorPosition < newLine.length) {
+                            terminal.value.write('\x1b[' + (PROMPT_LENGTH + newLine.length - cursorPosition) + 'D');
+                        }
                     }
 
                     terminal.value.onKey(({ key, domEvent }) => {
@@ -758,8 +762,8 @@
                         
                         if (domEvent.keyCode === 13) { // Enter
                             if (currentLine.trim() !== '') {
-                                commandHistory.push(currentLine);  // Add to history
-                                historyIndex = commandHistory.length;  // Reset history index
+                                commandHistory.push(currentLine);
+                                historyIndex = commandHistory.length;
                             }
                             
                             arturo.call("executeCode", currentLine).then((res) => {
@@ -767,20 +771,31 @@
                                     if (res.content !== null) {
                                         terminal.value.write("\r\n\x1b[2;37m=> " + res.content + "\x1b[0m");
                                     }
-                                }
-                                else {
+                                } else {
                                     terminal.value.write("\r\n\x1b[0;31m!! " + res.content + "\x1b[0m");
                                 }
-                                terminal.value.write('\r\n\r\n$> ');
+                                terminal.value.write('\r\n\r\n' + PROMPT);
                                 currentLine = '';
                                 cursorPosition = 0;
                             });
                             
+                        } else if (domEvent.keyCode === 37) { // Left arrow
+                            if (cursorPosition > 0) {
+                                cursorPosition--;
+                                terminal.value.write('\x1b[D');
+                            }
+                        } else if (domEvent.keyCode === 39) { // Right arrow
+                            if (cursorPosition < currentLine.length) {
+                                cursorPosition++;
+                                terminal.value.write('\x1b[C');
+                            }
                         } else if (domEvent.keyCode === 8) { // Backspace
                             if (currentLine.length > 0 && cursorPosition > 0) {
-                                currentLine = currentLine.slice(0, -1);
+                                const beforeCursor = currentLine.slice(0, cursorPosition - 1);
+                                const afterCursor = currentLine.slice(cursorPosition);
+                                currentLine = beforeCursor + afterCursor;
                                 cursorPosition--;
-                                terminal.value.write('\b \b');
+                                rewriteLine(currentLine, cursorPosition);
                             }
                         } else if (domEvent.keyCode === 38) { // Up arrow
                             if (historyIndex > 0) {
@@ -795,27 +810,12 @@
                                 historyIndex = commandHistory.length;
                                 rewriteLine('');
                             }
-                        } else if (domEvent.ctrlKey && domEvent.key === 'c') { // Ctrl+C
-                            // If there's selected text, the browser will handle the copy
-                            // If not, we can add our own behavior here
-                            if (!terminal.value.hasSelection()) {
-                                terminal.value.write('^C\r\n$> ');
-                                currentLine = '';
-                                cursorPosition = 0;
-                            }
-                        } else if (domEvent.ctrlKey && domEvent.key === 'v') { // Ctrl+V
-                            // Read from clipboard and write to terminal
-                            navigator.clipboard.readText().then(text => {
-                                currentLine += text;
-                                cursorPosition += text.length;
-                                terminal.value.write(text);
-                            }).catch(err => {
-                                console.warn('Failed to read clipboard:', err);
-                            });
                         } else if (printable) {
-                            currentLine += key;
+                            const beforeCursor = currentLine.slice(0, cursorPosition);
+                            const afterCursor = currentLine.slice(cursorPosition);
+                            currentLine = beforeCursor + key + afterCursor;
                             cursorPosition++;
-                            terminal.value.write(key);
+                            rewriteLine(currentLine, cursorPosition);
                         }
                     });
 
