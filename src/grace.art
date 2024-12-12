@@ -37,6 +37,20 @@ doSth: function [n][
     eval {console.log("we actually managed to execute something ON the webview!");}
 ]
 
+executeCode: function [inp][
+    unless null? err: <= try [
+        unless null? err: <= try to :block inp -> 
+            return #[ok: false, content: to :string err]
+
+        StackSize: size stack
+
+        if StackSize > 0 -> Got: unstack 1
+        unless null? Got -> return #[ok: true, content: render.once "|Got|"]
+
+        return #[ok: true, content: null]
+    ] -> return #[ok: false, content: to :string err]
+]
+
 export module [
     ;---------------------------
     ; Private methods
