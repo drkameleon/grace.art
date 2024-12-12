@@ -769,7 +769,7 @@
                                     }
                                 }
                                 else {
-                                    terminal.value.write("\r\n\x1b[2;31m!! " + res.content + "\x1b[0m");
+                                    terminal.value.write("\r\n\x1b[0;31m!! " + res.content + "\x1b[0m");
                                 }
                                 terminal.value.write('\r\n\r\n$> ');
                                 currentLine = '';
