@@ -762,9 +762,14 @@
                                 historyIndex = commandHistory.length;  // Reset history index
                             }
                             
-                            arturo.exec(currentLine).then((res) => {
-                                if (res !== null) {
-                                    terminal.value.write("\r\n\x1b[2;37m=> " + res + "\x1b[0m");
+                            arturo.call("executeCode", currentLine).then((res) => {
+                                if (res.ok) {
+                                    if (res.content !== null) {
+                                        terminal.value.write("\r\n\x1b[2;37m=> " + res.content + "\x1b[0m");
+                                    }
+                                }
+                                else {
+                                    terminal.value.write("\r\n\x1b[2;31m!! " + res.content + "\x1b[0m");
                                 }
                                 terminal.value.write('\r\n\r\n$> ');
                                 currentLine = '';
