@@ -38,6 +38,8 @@ doSth: function [n][
 ]
 
 executeCode: function [inp][
+    Got: null
+    
     unless null? err: <= try [
         unless null? err: <= try to :block inp -> 
             return #[ok: false, content: to :string err]
