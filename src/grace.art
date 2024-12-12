@@ -39,18 +39,26 @@ doSth: function [n][
 
 executeCode: function [inp][
     Got: null
+    RES: null
 
-    unless null? err: <= try.verbose [
-        unless null? err: <= try.verbose to :block inp -> 
-            return #[ok: false, content: to :string err]
-
-        StackSize: size stack
-
-        if StackSize > 0 -> Got: unstack 1
-        unless null? Got -> return #[ok: true, content: render.once "|Got|"]
-
-        return #[ok: true, content: null]
-    ] -> return #[ok: false, content: to :string err]
+    (not? null? err: <= try [
+        (not? null? err: <= try to :block inp)?[
+            RES: #[ok: false, content: to :string err]
+        ][
+            StackSize: size stack
+            if StackSize > 0 -> Got: unstack 1
+            (null? Got)?[
+                RES: #[ok: true, content: null]
+            ][
+                RES: #[ok: true, content: to :string Got]
+            ]
+        ]
+        
+    ])? [
+        return #[ok: false, content: to :string err]
+    ][
+        return RES
+    ]
 ]
 
 export module [
